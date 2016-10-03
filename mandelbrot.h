@@ -3,6 +3,14 @@
 
 using namespace std;
 
+// Constants
+const int Plus = '+';
+const int Minus = '-';
+const int J = 'j';
+const int C = 'c';
+const int R = 'r';
+const int A = 'a';
+
 // OpenGL Callbacks
 void display( void );
 void reshape( int w, int h );
