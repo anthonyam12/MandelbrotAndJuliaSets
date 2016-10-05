@@ -74,6 +74,7 @@ void mousemove( int x, int y )
 	// track the mouse position to open Julia Set
 	// need to convert between window relative coordinates to
 	// viewplane relative coordinates
+	// May be useful - http://webglfactory.blogspot.com/2011/05/how-to-convert-world-to-screen.html
 	MouseX = x;
 	MouseY = y;
 }
