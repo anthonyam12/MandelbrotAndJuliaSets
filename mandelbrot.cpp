@@ -6,6 +6,18 @@ int main( int argc, char* argv[] )
 	glutInit( &argc, argv );
 	initOpenGL();
 
+	Julia j;
+	Mandelbrot m;
+	ComplexPoint pt;
+	vector< ComplexPoint > points;
+
+	points = j.GetPoints(0, 0, 0, 0, 0);
+	pt = points[0];
+	cout << "here " << pt.y << endl;
+	points = m.GetPoints(0, 0, 0, 0, 0);
+	pt = points[0];
+	cout << "HERERRE "<< pt.y << endl;
+
 	// enter glut main loop
 	glutMainLoop();
 

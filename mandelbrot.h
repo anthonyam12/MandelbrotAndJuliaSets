@@ -1,5 +1,7 @@
-#include <iostream> 
+//#include <iostream> 
 #include <GL/freeglut.h>
+
+#include "points.h"
 
 using namespace std;
 

@@ -26,8 +26,17 @@ GL_LIBS = -lglut -lGLU -lGL -lm
 
 all:    mandelbrot
 
+julia: julia.o
+	$(LINK) -o $@ $^ $(GL_LIBS)
+
+mandelbrot_points: mandelbrot_points.o
+	$(LINK) -o $@ $^ $(GL_LIBS)
+
+mandelbrot: mandelbrot.o
+	$(LINK) -o $@ $^ $(GL_LIBS)
+
 # typical target entry, builds "myprog" from file1.cpp, file2.cpp, file3.cpp
-tankwars: mandelbrot.cpp
+mandelbrot: julia.o mandelbrot.o mandelbrot_points.o
 	$(LINK) -o $@ $^ $(GL_LIBS)
 
 # generic C and C++ targets for OpenGL programs consisting of only one file
