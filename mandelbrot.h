@@ -1,7 +1,7 @@
 //#include <iostream> 
 #include <GL/freeglut.h>
 
-#include "points.h"
+#include "global.h"
 
 using namespace std;
 
@@ -12,6 +12,10 @@ const int J = 'j';
 const int C = 'c';
 const int R = 'r';
 const int A = 'a';
+
+// Globals
+vector<ComplexPoint> MandelbrotPoints;
+vector<ComplexPoint> JuliaPoints;
 
 float MouseX = 0;
 float MouseY = 0;

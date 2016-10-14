@@ -11,10 +11,10 @@ int main( int argc, char* argv[] )
 	ComplexPoint pt;
 	vector< ComplexPoint > points;
 
-	points = j.GetPoints(0, 0, 0, 0, 0);
+	points = j.GetPoints(0, 0, 0);
 	pt = points[0];
 	cout << "here " << pt.y << endl;
-	points = m.GetPoints(0, 0, 0, 0, 0);
+	points = m.GetPoints(1000, 1000, 1000);
 	pt = points[0];
 	cout << "HERERRE "<< pt.y << endl;
 
