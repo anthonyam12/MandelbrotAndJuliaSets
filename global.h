@@ -3,10 +3,18 @@
 
 using namespace std;
 
+struct Color
+{
+	float r;
+	float g;
+	float b;
+};
+
 struct ComplexPoint 
 {
 	float x;
 	float y;
+	Color color;
 };
 
 class Julia 

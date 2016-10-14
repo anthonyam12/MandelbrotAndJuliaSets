@@ -16,6 +16,8 @@ const int A = 'a';
 // Globals
 vector<ComplexPoint> MandelbrotPoints;
 vector<ComplexPoint> JuliaPoints;
+Julia julia;
+Mandelbrot mandelbrot;
 
 float MouseX = 0;
 float MouseY = 0;
@@ -34,5 +36,3 @@ void mousemove( int x, int y );
 
 // Misc. Functions
 void initOpenGL();
-float mandelbrot( int x, int y );
-float julia( int x, int y );

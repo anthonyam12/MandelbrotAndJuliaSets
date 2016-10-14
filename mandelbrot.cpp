@@ -6,17 +6,8 @@ int main( int argc, char* argv[] )
 	glutInit( &argc, argv );
 	initOpenGL();
 
-	Julia j;
-	Mandelbrot m;
-	ComplexPoint pt;
-	vector< ComplexPoint > points;
-
-	points = j.GetPoints(0, 0, 0);
-	pt = points[0];
-	cout << "here " << pt.y << endl;
-	points = m.GetPoints(1000, 1000, 1000);
-	pt = points[0];
-	cout << "HERERRE "<< pt.y << endl;
+	MandelbrotPoints = mandelbrot.GetPoints(1000, 1000, 1000);
+	JuliaPoints = julia.GetPoints(1000, 1000, 1000);
 
 	// enter glut main loop
 	glutMainLoop();
@@ -33,9 +24,20 @@ int main( int argc, char* argv[] )
  ******************************************************************************/
 void display( void )
 {
-	glClear( GL_COLOR_BUFFER_BIT );
-	
+	glClear( GL_COLOR_BUFFER_BIT );	
 	glutSwapBuffers();
+
+	ComplexPoint pt;
+	for( vector<ComplexPoint>::const_iterator it=MandelbrotPoints.begin(); it < MandelbrotPoints.end(); it++ )
+	{
+		pt = *it;
+		float color[3] = { pt.color.r, pt.color.g, pt.color.b };
+		glColor3fv( color );
+		glBegin( GL_POINTS );
+			glVertex2f( pt.x, pt.y );
+		glEnd();
+	}
+
 	glFlush();
 }
 
@@ -43,11 +45,19 @@ void reshape( int w, int h )
 {
 	ScreenWidth = w;
 	ScreenHeight = h;
-	
+
+	float xmin = mandelbrot.GetComplexXMin();
+	float xmax = mandelbrot.GetComplexXMax();
+	float ymin = mandelbrot.GetComplexYMin();
+	float ymax = mandelbrot.GetComplexYMax();
+
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
-	gluOrtho2D( -ViewplaneX, ViewplaneX, -ViewplaneY, ViewplaneY );
+
+	gluOrtho2D( xmin, xmax, ymin, ymax  );
 	glViewport( 0, 0, w, h );
+
+	glClear( GL_COLOR_BUFFER_BIT );
 }
 
 void keyboard( unsigned char key, int x, int y )
@@ -96,12 +106,12 @@ void mousemove( int x, int y )
  ******************************************************************************/
 void initOpenGL( void )
 {
-	glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE );
+	glutInitDisplayMode( GLUT_RGB | GLUT_SINGLE );
 	
 	// window settings 
 	glutInitWindowSize( ScreenWidth, ScreenHeight );
 	glutInitWindowPosition( 200, 40 );
-	glutCreateWindow( "Mandelbrot and Julia Sets" );
+	glutCreateWindow( "NineteenSixtyX" );
 	
 	// color used to clear screen - black
 	glClearColor( 0.0, 0.0, 0.0, 1.0 );
@@ -111,14 +121,4 @@ void initOpenGL( void )
 	glutReshapeFunc( reshape );
 	glutKeyboardFunc( keyboard );
 	glutPassiveMotionFunc( mousemove );
-}
-
-float mandelbrot( int x, int y )
-{
-	return 0;
-}
-
-float julia( int x, int y )
-{
-	return 0;
 }
