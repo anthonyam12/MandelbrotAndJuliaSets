@@ -1,5 +1,6 @@
 //#include <iostream> 
 #include <GL/freeglut.h>
+#include <math.h>
 
 #include "global.h"
 
@@ -18,14 +19,12 @@ vector<ComplexPoint> MandelbrotPoints;
 vector<ComplexPoint> JuliaPoints;
 Julia julia;
 Mandelbrot mandelbrot;
+Color ColorSchemes[7];
+ComplexPoint JuliaSeed;
+bool IsJulia = false;
 
-float MouseX = 0;
-float MouseY = 0;
-
-float ScreenWidth = 1200;
-float ScreenHeight = 800;
-float ViewplaneX = 1000;
-float ViewplaneY = 1000;
+float ScreenWidth = 900;
+float ScreenHeight = 900;
 
 // OpenGL Callbacks
 void display( void );

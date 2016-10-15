@@ -1,6 +1,6 @@
 #include "global.h"
 
-vector< ComplexPoint > Julia::GetPoints( int nx, int ny,  int maxIters )
+vector< ComplexPoint > Julia::GetPoints( ComplexPoint seed, int nx, int ny,  int maxIters )
 {
 	vector< ComplexPoint > points;
 	ComplexPoint pt;

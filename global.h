@@ -20,7 +20,7 @@ struct ComplexPoint
 class Julia 
 {
 	public:
-		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters );
+		vector< ComplexPoint > GetPoints( ComplexPoint seed, int nx, int ny, int maxIters );
 	private:
 		ComplexPoint ComplexSquare( ComplexPoint z );
 };
@@ -29,11 +29,18 @@ class Mandelbrot
 {
 	public:
 		Mandelbrot();
-		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters );
+		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters, Color colorScheme[7] );
+		
 		float GetComplexXMin();
 		float GetComplexXMax();
 		float GetComplexYMin();
 		float GetComplexYMax();
+
+		// may not need these
+		void SetComplexXMin( float xmin );
+		void SetComplexXMax( float xmax );
+		void SetComplexYMin( float ymin );
+		void SetComplexYMax( float ymax );
 	private:
 		ComplexPoint ComplexSquare( ComplexPoint z );
 		int MandelbrotSqTransf( ComplexPoint z, int maxIter );
