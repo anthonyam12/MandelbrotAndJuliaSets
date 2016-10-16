@@ -1,18 +1,85 @@
 #include "global.h"
 
-vector< ComplexPoint > Julia::GetPoints( ComplexPoint seed, int nx, int ny,  int maxIters )
+void Julia::SetComplexGlobals( ComplexPoint seed ) 
 {
+	this->ComplexXMin = seed.x - 1;
+	this->ComplexXMax = seed.x + 1;
+	this->ComplexYMin = seed.y - 1;
+	this->ComplexYMax = seed.y + 1;
+
+	this->ComplexHeight = ComplexXMax - ComplexXMin;
+	this->ComplexWidth = ComplexYMax - ComplexYMin;
+}
+
+vector< ComplexPoint > Julia::GetPoints( ComplexPoint seed, int nx, int ny,  int maxIter )
+{
+	SetComplexGlobals( seed );
 	vector< ComplexPoint > points;
-	ComplexPoint pt;
+	Color ptColor;
+	ComplexPoint z = seed,  zIncr;
+	int count = 0;
 
-	pt.x = 1;
-	pt.y = 2;
+	zIncr.x = ComplexWidth / float( nx );
+	zIncr.y = ComplexHeight / float( ny );
 
-	points.push_back(pt);
+	for( z.x = ComplexXMin; z.x < ComplexXMax; z.x += zIncr.x )
+	{
+		for( z.y = ComplexYMin; z.y < ComplexYMax; z.y += zIncr.y ) 
+		{
+			//TODO: should we use more subdivisions for more definition?
+			count = JuliaSqTransf( z, seed, maxIter );
+			if( count >= maxIter )
+			{
+				ptColor.r = ptColor.g = ptColor.b = 0.0;
+			}
+			else if ( count > ( maxIter / 8) ) 
+			{
+				ptColor.r = 1.0;
+				ptColor.g = 0.5;
+				ptColor.b = 0.0;
+			}
+			else if ( count > ( maxIter / 10) ) 
+			{
+				ptColor.r = 1.0;
+				ptColor.g = 0.0;
+				ptColor.b = 0.0;
+			}
+			else if ( count > ( maxIter / 20) ) 
+			{
+				ptColor.r = 0.0;
+				ptColor.g = 0.0;
+				ptColor.b = 0.5;
+			}
+			else if ( count > ( maxIter / 40) ) 
+			{
+				ptColor.r = 1.0;
+				ptColor.g = 1.0;
+				ptColor.b = 0.0;
+			}
+			else if ( count > ( maxIter / 40) ) 
+			{
+				ptColor.r = 1.0;
+				ptColor.g = 1.0;
+				ptColor.b = 0.0;
+			}
+			else if ( count > ( maxIter / 100) ) 
+			{
+				ptColor.r = 0.0;
+				ptColor.g = 0.3;
+				ptColor.b = 0.0;
+			}
+			else 
+			{
+				ptColor.r = 0.0;
+				ptColor.g = ptColor.b = 1.0;
+			}
+			z.color = ptColor;
+			points.push_back(z);
+		}
+	}
 
 	return points;
 }
-
 
 ComplexPoint Julia::ComplexSquare( ComplexPoint z )
 {
@@ -22,4 +89,39 @@ ComplexPoint Julia::ComplexSquare( ComplexPoint z )
 	square.y = 2 * z.x * z.y;
 
 	return square;
+}
+
+int Julia::JuliaSqTransf( ComplexPoint z0, ComplexPoint seed, int maxIter ) 
+{
+	ComplexPoint z = z0;
+	int count = 0;
+
+	while ( ( z.x * z.x + z.y * z.y <= 4.0 ) && ( count < maxIter ) )
+	{
+		z = ComplexSquare( z );
+		z.x += seed.x;
+		z.y += seed.y;
+		count++;
+	}
+	return count;
+}
+
+float Julia::GetComplexXMin()
+{
+	return ComplexXMin;
+}
+
+float Julia::GetComplexXMax() 
+{
+	return ComplexXMax;
+}
+
+float Julia::GetComplexYMin()
+{
+	return ComplexYMin;
+}
+
+float Julia::GetComplexYMax() 
+{
+	return ComplexYMax;
 }

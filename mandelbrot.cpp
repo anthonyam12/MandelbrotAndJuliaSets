@@ -6,9 +6,9 @@ int main( int argc, char* argv[] )
 {
 	// get Mandelbrot points
 	MandelbrotPoints = mandelbrot.GetPoints(1000, 1000, 1000, NULL);
-	vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
+	//vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
 
-	cout << test.size() << " == " << MandelbrotPoints.size() << endl;
+	//cout << test.size() << " == " << MandelbrotPoints.size() << endl;
 
 	// Initialize glut/openGL
 	glutInit( &argc, argv );
@@ -39,11 +39,35 @@ void display( void )
 	{
 		pt = *it;
 		float color[3] = { pt.color.r, pt.color.g, pt.color.b };
+		//cout << pt.x << ", " << pt.y << endl;
 		glColor3fv( color );
 		glBegin( GL_POINTS );
 			glVertex2f( pt.x, pt.y );
 		glEnd();
 	}
+
+	float xmin = 0;
+	float xmax = 0;
+	float ymin = 0;
+	float ymax = 0;
+
+	if( !IsJulia )
+	{
+		xmin = mandelbrot.GetComplexXMin();
+		xmax = mandelbrot.GetComplexXMax();
+		ymin = mandelbrot.GetComplexYMin();
+		ymax = mandelbrot.GetComplexYMax();
+	}
+	else 
+	{
+		xmin = julia.GetComplexXMin();
+		xmax = julia.GetComplexXMax();
+		ymin = julia.GetComplexYMin();
+		ymax = julia.GetComplexYMax();
+	}
+
+	//gluOrtho2D( xmin, xmax, ymin, ymax );
+	glViewport( 0, 0, ScreenWidth, ScreenHeight );
 
 	glFlush();
 }
@@ -68,6 +92,10 @@ void reshape( int w, int h )
 	else 
 	{
 		// set x/y min/max based on Julia values 
+		xmin = julia.GetComplexXMin();
+		xmax = julia.GetComplexXMax();
+		ymin = julia.GetComplexYMin();
+		ymax = julia.GetComplexYMax();
 	}
 
 	glMatrixMode( GL_PROJECTION );
@@ -97,8 +125,10 @@ void keyboard( unsigned char key, int x, int y )
 			break;
 		case J:
 			// Calc/Open Julia Set
-			cout << "(JuliaX, JuliaY): " << JuliaSeed.x << ", " << JuliaSeed.y << endl;
-			JuliaPoints = julia.GetPoints( JuliaSeed, 1000, 1000, 1000 );
+			if ( !IsJulia )
+			{
+				JuliaPoints = julia.GetPoints( JuliaSeed, 1000, 1000, 1000 );
+			}
 			IsJulia = !IsJulia;
 			break;
 		case C:
@@ -108,6 +138,7 @@ void keyboard( unsigned char key, int x, int y )
 		case A:
 			break;
 	}	
+	glutPostRedisplay();
 }
 
 void mouseclick( int button, int state, int x, int y )
@@ -120,13 +151,19 @@ void mousemove( int x, int y )
 	// invert y
 	y = ScreenHeight - y;
 
+
+	float xmin = 0;
+	float xmax = 0;
+	float ymin = 0;
+	float ymax = 0;
+
 	if ( !IsJulia ) 
 	{
 		// track the mouse position to open Julia Set
-		float xmin = mandelbrot.GetComplexXMin();
-		float xmax = mandelbrot.GetComplexXMax();
-		float ymin = mandelbrot.GetComplexYMin();
-		float ymax = mandelbrot.GetComplexYMax();
+		xmin = mandelbrot.GetComplexXMin();
+		xmax = mandelbrot.GetComplexXMax();
+		ymin = mandelbrot.GetComplexYMin();
+		ymax = mandelbrot.GetComplexYMax();
 
 
 		float gridStepsX = ( ( fabs(xmax) + fabs(xmin) ) / ScreenWidth );
@@ -141,6 +178,19 @@ void mousemove( int x, int y )
 	else 
 	{
 		// Not sure what to do here
+		xmin = julia.GetComplexXMin();
+		xmax = julia.GetComplexXMax();
+		ymin = julia.GetComplexYMin();
+		ymax = julia.GetComplexYMax();
+
+		float gridStepsX = ( ( fabs(xmax) + fabs(xmin) ) / ScreenWidth );
+		float gridStepsY = ( ( fabs(ymax) + fabs(ymin) ) / ScreenHeight );
+		
+		float plotx = xmin + ( x * gridStepsX );
+		float ploty = ymin + ( y * gridStepsY );
+
+		JuliaSeed.x = plotx;
+		JuliaSeed.y = ploty;
 	}
 }
 

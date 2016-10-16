@@ -21,8 +21,26 @@ class Julia
 {
 	public:
 		vector< ComplexPoint > GetPoints( ComplexPoint seed, int nx, int ny, int maxIters );
+		float GetComplexXMin();
+		float GetComplexXMax();
+		float GetComplexYMin();
+		float GetComplexYMax();
+		// may not need these
+		void SetComplexXMin( float xmin );
+		void SetComplexXMax( float xmax );
+		void SetComplexYMin( float ymin );
+		void SetComplexYMax( float ymax );
 	private:
 		ComplexPoint ComplexSquare( ComplexPoint z );
+		int JuliaSqTransf( ComplexPoint z, ComplexPoint seed, int maxIter );
+		void SetComplexGlobals( ComplexPoint seed );
+
+		float ComplexXMin;
+		float ComplexXMax;
+		float ComplexYMin;
+		float ComplexYMax;
+		float ComplexWidth;
+		float ComplexHeight;
 };
 
 class Julia_cu
