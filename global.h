@@ -82,6 +82,7 @@ class Mandelbrot_cu
 {	
 	public:
 		Mandelbrot_cu();
+		//void CalcPoint( float *x, float *y, float *r, float *g, float *b, float w, float h );
 		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters, Color colorScheme[7] );
 		
 		float GetComplexXMin();

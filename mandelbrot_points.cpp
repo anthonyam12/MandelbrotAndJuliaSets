@@ -4,9 +4,9 @@
 Mandelbrot::Mandelbrot()
 {
 		this->ComplexXMin = -2.00;
-		this->ComplexXMax = .5;
-		this->ComplexYMin = -1.25;
-		this->ComplexYMax = 1.25;
+		this->ComplexXMax = 1.0;
+		this->ComplexYMin = -1.5;
+		this->ComplexYMax = 1.5;
 
 		this->ComplexWidth = ComplexXMax - ComplexXMin;
 		this->ComplexHeight = ComplexYMax - ComplexYMin;
@@ -70,6 +70,30 @@ vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter, Colo
 				ptColor.r = 0.0;
 				ptColor.g = 0.3;
 				ptColor.b = 0.0;
+			}
+			else if ( count > (maxIter / 200) )
+			{
+				ptColor.r = 0.0;
+				ptColor.g = 0.3;
+				ptColor.b = 0.3;
+			}
+			else if ( count > (maxIter / 400) )
+			{
+				ptColor.r = 0.0;
+				ptColor.g = 0.5;
+				ptColor.b = 0.5;
+			}
+			else if ( count > (maxIter / 600) )
+			{
+				ptColor.r = 0.0;
+				ptColor.g = 0.7;
+				ptColor.b = 0.7;
+			}
+			else if ( count > (maxIter / 800) )
+			{
+				ptColor.r = 0.0;
+				ptColor.g = 0.9;
+				ptColor.b = 0.9;
 			}
 			else 
 			{

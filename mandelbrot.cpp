@@ -6,9 +6,9 @@ int main( int argc, char* argv[] )
 {
 	// get Mandelbrot points
 	MandelbrotPoints = mandelbrot.GetPoints(1000, 1000, 1000, NULL);
-	//vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
+	vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
 
-	//cout << test.size() << " == " << MandelbrotPoints.size() << endl;
+	cout << test.size() << " == " << MandelbrotPoints.size() << endl;
 
 	// Initialize glut/openGL
 	glutInit( &argc, argv );
@@ -29,22 +29,8 @@ int main( int argc, char* argv[] )
  ******************************************************************************/
 void display( void )
 {
-	glClear( GL_COLOR_BUFFER_BIT );	
-	glutSwapBuffers();
-
-	vector<ComplexPoint> plotVec = IsJulia ? JuliaPoints : MandelbrotPoints;
-
-	ComplexPoint pt;
-	for( vector<ComplexPoint>::const_iterator it=plotVec.begin(); it < plotVec.end(); it++ )
-	{
-		pt = *it;
-		float color[3] = { pt.color.r, pt.color.g, pt.color.b };
-		//cout << pt.x << ", " << pt.y << endl;
-		glColor3fv( color );
-		glBegin( GL_POINTS );
-			glVertex2f( pt.x, pt.y );
-		glEnd();
-	}
+	//glMatrixMode( GL_PROJECTION );
+	glLoadIdentity();
 
 	float xmin = 0;
 	float xmax = 0;
@@ -66,8 +52,25 @@ void display( void )
 		ymax = julia.GetComplexYMax();
 	}
 
-	//gluOrtho2D( xmin, xmax, ymin, ymax );
+	gluOrtho2D( xmin, xmax, ymin, ymax );
 	glViewport( 0, 0, ScreenWidth, ScreenHeight );
+
+	glClear( GL_COLOR_BUFFER_BIT );	
+	glutSwapBuffers();
+
+	vector<ComplexPoint> plotVec = IsJulia ? JuliaPoints : MandelbrotPoints;
+
+	ComplexPoint pt;
+	for( vector<ComplexPoint>::const_iterator it=plotVec.begin(); it < plotVec.end(); it++ )
+	{
+		pt = *it;
+		float color[3] = { pt.color.r, pt.color.g, pt.color.b };
+		//cout << pt.x << ", " << pt.y << endl;
+		glColor3fv( color );
+		glBegin( GL_POINTS );
+			glVertex2f( pt.x, pt.y );
+		glEnd();
+	}
 
 	glFlush();
 }

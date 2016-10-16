@@ -1,6 +1,5 @@
 #include "global.h"
 
-
 Mandelbrot_cu::Mandelbrot_cu()
 {
 		this->ComplexXMin = -2.00;
@@ -12,7 +11,15 @@ Mandelbrot_cu::Mandelbrot_cu()
 		this->ComplexHeight = ComplexYMax - ComplexYMin;
 }
 
-vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny,  int maxIter, Color colorScheme[7] ) 
+__global__ void CalcPoint( float *x, float *y, float *r, float *g, float *b, int w, int h, int n ) 
+{
+	for ( int index = blockIdx.x; index < n; index += gridDim.x )
+	{
+		
+	}
+}
+
+vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter, Color colorScheme[7] ) 
 {
 	//TODO: Get the colors for the points from colorScheme[i] rather than setting to the book color
 	//TODO: for animation we will go through our stored colored schemes and set the color in the 
@@ -22,7 +29,9 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny,  int maxIter, C
 	//TODO: a global colorScheme[7] array's values to the next color scheme and redraw the points.
 	//TODO: We wouldn't need to change the points' colors at all since it is just an index to our 
 	//TODO: current color scheme.
+	
 	vector< ComplexPoint > points;
+	/*
 	Color ptColor;
 
 	ComplexPoint z, zIncr;
@@ -80,6 +89,22 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny,  int maxIter, C
 			points.push_back(z);
 		}
 	}
+
+	return points;
+	*/
+	long size = nx * ny;
+	float *x, *y, *r, *g, *b;
+
+	cudaMalloc( ( void ** )&x, size );
+	cudaMalloc( ( void ** )&y, size );
+	cudaMalloc( ( void ** )&r, size );
+	cudaMalloc( ( void ** )&g, size );
+	cudaMalloc( ( void ** )&b, size );
+	
+	int nThreads = 64;
+	int nBlocks = ( size + nThreads - 1 ) / nThreads;
+	
+	CalcPoint<<< nBlocks, nThreads >>>( x, y, r, g, b, ComplexWidth, ComplexHeight, size );
 
 	return points;
 }
