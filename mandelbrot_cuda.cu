@@ -1,7 +1,7 @@
 #include "global.h"
 
 
-Mandelbrot::Mandelbrot()
+Mandelbrot_cu::Mandelbrot_cu()
 {
 		this->ComplexXMin = -2.00;
 		this->ComplexXMax = .5;
@@ -12,7 +12,7 @@ Mandelbrot::Mandelbrot()
 		this->ComplexHeight = ComplexYMax - ComplexYMin;
 }
 
-vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter, Color colorScheme[7] ) 
+vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny,  int maxIter, Color colorScheme[7] ) 
 {
 	//TODO: Get the colors for the points from colorScheme[i] rather than setting to the book color
 	//TODO: for animation we will go through our stored colored schemes and set the color in the 
@@ -84,7 +84,7 @@ vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter, Colo
 	return points;
 }
 
-ComplexPoint Mandelbrot::ComplexSquare( ComplexPoint z )
+ComplexPoint Mandelbrot_cu::ComplexSquare( ComplexPoint z )
 {
 	ComplexPoint square;
 
@@ -94,7 +94,7 @@ ComplexPoint Mandelbrot::ComplexSquare( ComplexPoint z )
 	return square;
 }
 
-int Mandelbrot::MandelbrotSqTransf( ComplexPoint z0, int maxIter ) 
+int Mandelbrot_cu::MandelbrotSqTransf( ComplexPoint z0, int maxIter ) 
 {
 	ComplexPoint z = z0;
 	int count = 0;
@@ -110,28 +110,43 @@ int Mandelbrot::MandelbrotSqTransf( ComplexPoint z0, int maxIter )
 }
 
 
-float Mandelbrot::GetComplexXMin()
+float Mandelbrot_cu::GetComplexXMin()
 {
 	return this->ComplexXMin;
 }
 
-float Mandelbrot::GetComplexXMax()
+float Mandelbrot_cu::GetComplexXMax()
 {
 	return this->ComplexXMax;
 }
 
-float Mandelbrot::GetComplexYMin()
+float Mandelbrot_cu::GetComplexYMin()
 {
 	return this->ComplexYMin;
 }
 
-float Mandelbrot::GetComplexYMax()
+float Mandelbrot_cu::GetComplexYMax()
 {
 	return this->ComplexYMax;
 }
 
 
-void Mandelbrot::SetComplexXMin( float xmin )
+void Mandelbrot_cu::SetComplexXMin( float xmin )
 {
 	this->ComplexXMin = xmin;
+}
+
+void Mandelbrot_cu::SetComplexXMax( float xmax )
+{
+	this->ComplexXMax = xmax;
+}
+
+void Mandelbrot_cu::SetComplexYMin( float ymin )
+{
+	this->ComplexYMin = ymin;
+}
+
+void Mandelbrot_cu::SetComplexYMax( float ymax )
+{
+	this->ComplexYMax = ymax;
 }

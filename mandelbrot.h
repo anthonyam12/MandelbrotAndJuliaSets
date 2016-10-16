@@ -17,8 +17,11 @@ const int A = 'a';
 // Globals
 vector<ComplexPoint> MandelbrotPoints;
 vector<ComplexPoint> JuliaPoints;
+
 Julia julia;
 Mandelbrot mandelbrot;
+Mandelbrot_cu mandelbrotCu;
+
 Color ColorSchemes[7];
 ComplexPoint JuliaSeed;
 bool IsJulia = false;

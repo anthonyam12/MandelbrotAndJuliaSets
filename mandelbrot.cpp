@@ -6,6 +6,9 @@ int main( int argc, char* argv[] )
 {
 	// get Mandelbrot points
 	MandelbrotPoints = mandelbrot.GetPoints(1000, 1000, 1000, NULL);
+	vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
+
+	cout << test.size() << " == " << MandelbrotPoints.size() << endl;
 
 	// Initialize glut/openGL
 	glutInit( &argc, argv );
