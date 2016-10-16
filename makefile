@@ -28,6 +28,9 @@ GL_LIBS = -lglut -lGLU -lGL -lm
 all:    mandelbrot
 
 mandelbrot_cuda.o: mandelbrot_cuda.cu
+	$(CU) -o $@ -c $<
+
+julia_cuda.o: julia_cuda.cu
 	$(CU) -o $@ -c $< 
 
 julia: julia.o
@@ -37,7 +40,7 @@ mandelbrot_points: mandelbrot_points.o
 	$(LINK) -o $@ $^ $(GL_LIBS) 
 
 # typical target entry, builds "myprog" from file1.cpp, file2.cpp, file3.cpp
-mandelbrot: julia.o mandelbrot_points.o mandelbrot_cuda.o
+mandelbrot: julia.o mandelbrot_points.o mandelbrot_cuda.o julia_cuda.o
 	$(LINK) -o $@ $^ mandelbrot.cpp $(GL_LIBS) -L/usr/local/cuda/lib -lcuda -lcudart 
 
 # generic C and C++ targets for OpenGL programs consisting of only one file

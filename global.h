@@ -25,6 +25,14 @@ class Julia
 		ComplexPoint ComplexSquare( ComplexPoint z );
 };
 
+class Julia_cu
+{
+	public:
+		vector< ComplexPoint > GetPoints( ComplexPoint seed, int nx, int ny, int maxIters );
+	private:
+		ComplexPoint ComplexSquare( ComplexPoint z );
+};
+
 class Mandelbrot
 {
 	public:
