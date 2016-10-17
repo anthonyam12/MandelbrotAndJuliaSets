@@ -126,12 +126,17 @@ void keyboard( unsigned char key, int x, int y )
 	{
 		case Plus:
 			mandelbrot.SetComplexXMax( mandelbrot.GetComplexXMax() - .05 );
-			mandelbrot.SetComplexXMin( mandelbrot.GetComplexXMin() - .05 );
+			mandelbrot.SetComplexXMin( mandelbrot.GetComplexXMin() + .05 );
 			mandelbrot.SetComplexYMax( mandelbrot.GetComplexYMax() - .05 );
-			mandelbrot.SetComplexYMin( mandelbrot.GetComplexYMin() - .05 );
+			mandelbrot.SetComplexYMin( mandelbrot.GetComplexYMin() + .05 );
 			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
 			break;
 		case Minus:
+			mandelbrot.SetComplexXMax( mandelbrot.GetComplexXMax() + .05 );
+			mandelbrot.SetComplexXMin( mandelbrot.GetComplexXMin() - .05 );
+			mandelbrot.SetComplexYMax( mandelbrot.GetComplexYMax() + .05 );
+			mandelbrot.SetComplexYMin( mandelbrot.GetComplexYMin() - .05 );
+			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
 			break;
 		case J:
 			// Calc/Open Julia Set
