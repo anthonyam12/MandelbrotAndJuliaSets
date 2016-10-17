@@ -15,7 +15,7 @@ const int J = 'j';
 const int C = 'c';
 const int R = 'r';
 const int A = 'a';
-
+const int EscapeKey = 27;
 
 // Globals
 vector<ComplexPoint> MandelbrotPoints;
@@ -23,7 +23,7 @@ vector<ComplexPoint> JuliaPoints;
 
 Julia julia;						// Class to get Julia points
 Mandelbrot mandelbrot;				// Class to get Mandebrot points
-Mandelbrot_cu mandelbrotCu;			// Mandelbrot calculations on the GPU
+//Mandelbrot_cu mandelbrotCu;			// Mandelbrot calculations on the GPU
 
 vector< ColorScheme > ColorSchemes;	// Colors for the points
 ColorScheme CurrentScheme;			// Scheme currently being used
@@ -39,6 +39,7 @@ float ScreenHeight = 500;			// Window's height
 void display( void );
 void reshape( int w, int h );
 void keyboard( unsigned char key, int x, int y );
+void special( int key, int x, int y );
 void mouseclick( int button, int state, int x, int y );
 void mousemove( int x, int y );
 void update( int value );

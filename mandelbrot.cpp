@@ -11,7 +11,7 @@ int main( int argc, char* argv[] )
 
 	// get Mandelbrot points
 	MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
-	vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
+	//vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
 
 	// Initialize glut/openGL
 	glutInit( &argc, argv );
@@ -53,7 +53,6 @@ void display( void )
 		ymin = julia.GetComplexYMin();
 		ymax = julia.GetComplexYMax();
 	}
-
 	gluOrtho2D( xmin, xmax, ymin, ymax );
 	glViewport( 0, 0, ScreenWidth, ScreenHeight );
 
@@ -116,6 +115,28 @@ void reshape( int w, int h )
 
 void keyboard( unsigned char key, int x, int y )
 {
+
+	// might move this inside zoom in/out and pan cases
+	float xmin = 0;
+	float xmax = 0;
+	float ymin = 0;
+	float ymax = 0;
+
+	if( !IsJulia )
+	{
+		xmin = mandelbrot.GetComplexXMin();
+		xmax = mandelbrot.GetComplexXMax();
+		ymin = mandelbrot.GetComplexYMin();
+		ymax = mandelbrot.GetComplexYMax();
+	}
+	else 
+	{
+		xmin = julia.GetComplexXMin();
+		xmax = julia.GetComplexXMax();
+		ymin = julia.GetComplexYMin();
+		ymax = julia.GetComplexYMax();
+	}
+
 	// +/- keys for zoom (scaling transform)
 	// J - toggle between Mandelbrot and Julia Sets at Current Cursor position
 	// 	   (open new window for Julia)
@@ -125,17 +146,18 @@ void keyboard( unsigned char key, int x, int y )
 	switch ( key ) 
 	{
 		case Plus:
-			mandelbrot.SetComplexXMax( mandelbrot.GetComplexXMax() - .05 );
-			mandelbrot.SetComplexXMin( mandelbrot.GetComplexXMin() + .05 );
-			mandelbrot.SetComplexYMax( mandelbrot.GetComplexYMax() - .05 );
-			mandelbrot.SetComplexYMin( mandelbrot.GetComplexYMin() + .05 );
+			// change these to percentages
+			mandelbrot.SetComplexXMax( xmax - ( xmax*.1 ) );
+			mandelbrot.SetComplexXMin( xmin - ( xmin*.1 ) );
+			mandelbrot.SetComplexYMax( ymax - ( ymax*.1 ) );
+			mandelbrot.SetComplexYMin( ymin - ( ymin*.1 ) );
 			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
 			break;
 		case Minus:
-			mandelbrot.SetComplexXMax( mandelbrot.GetComplexXMax() + .05 );
-			mandelbrot.SetComplexXMin( mandelbrot.GetComplexXMin() - .05 );
-			mandelbrot.SetComplexYMax( mandelbrot.GetComplexYMax() + .05 );
-			mandelbrot.SetComplexYMin( mandelbrot.GetComplexYMin() - .05 );
+			mandelbrot.SetComplexXMax( xmax + ( xmax*.1 ) );
+			mandelbrot.SetComplexXMin( xmin + ( xmin*.1 ) );
+			mandelbrot.SetComplexYMax( ymax + ( ymax*.1 ) );
+			mandelbrot.SetComplexYMin( ymin + ( ymin*.1 ) );
 			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
 			break;
 		case J:
@@ -161,7 +183,62 @@ void keyboard( unsigned char key, int x, int y )
 			}
 			Animating = !Animating;
 			break;
+		case EscapeKey:
+			exit( 0 );
+			break;
 	}	
+	glutPostRedisplay();
+}
+
+void special( int key, int x, int y )
+{
+	float xmin = 0;
+	float xmax = 0;
+	float ymin = 0;
+	float ymax = 0;
+
+	if( !IsJulia )
+	{
+		xmin = mandelbrot.GetComplexXMin();
+		xmax = mandelbrot.GetComplexXMax();
+		ymin = mandelbrot.GetComplexYMin();
+		ymax = mandelbrot.GetComplexYMax();
+	}
+	else 
+	{
+		xmin = julia.GetComplexXMin();
+		xmax = julia.GetComplexXMax();
+		ymin = julia.GetComplexYMin();
+		ymax = julia.GetComplexYMax();
+	}
+	
+	float xlength = xmax - xmin;
+	float ylength = ymax - ymin;
+
+	switch( key )
+	{
+		case GLUT_KEY_RIGHT:	
+			mandelbrot.SetComplexXMin( xmin + ( xlength*.3 ) );
+			mandelbrot.SetComplexXMax( xmax + ( xlength*.3 ) );			
+			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			break;
+		case GLUT_KEY_LEFT:
+			mandelbrot.SetComplexXMin( xmin - ( xlength*.3 ) );
+			mandelbrot.SetComplexXMax( xmax - ( xlength*.3 ) );
+			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			break;
+		case GLUT_KEY_UP:	
+			mandelbrot.SetComplexYMin( ymin + ( ylength*.3 ) );
+			mandelbrot.SetComplexYMax( ymax + ( ylength*.3 ) );
+			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			break;
+		case GLUT_KEY_DOWN:	
+			mandelbrot.SetComplexYMin( ymin - ( ylength*.3 ) );
+			mandelbrot.SetComplexYMax( ymax - ( ylength*.3 ) );
+			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			break;
+	}
+	cout << "After Pan: " << xmin << ", " << xmax << endl;
 	glutPostRedisplay();
 }
 
@@ -216,7 +293,7 @@ void mousemove( int x, int y )
 		JuliaSeed.x = plotx;
 		JuliaSeed.y = ploty;
 	}
-	cout << JuliaSeed.x << ", " << JuliaSeed.y << endl;
+	//cout << JuliaSeed.x << ", " << JuliaSeed.y << endl;
 }
 
 void update( int value )
@@ -283,6 +360,8 @@ void initOpenGL( void )
 	glutReshapeFunc( reshape );
 	glutKeyboardFunc( keyboard );
 	glutPassiveMotionFunc( mousemove );
+	glutSpecialFunc( special );
+
 	//glutTimerFunc( 100, update, 0 );
 	//glutIdleFunc( idle );
 }

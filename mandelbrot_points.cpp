@@ -3,13 +3,10 @@
 
 Mandelbrot::Mandelbrot()
 {
-		this->ComplexXMin = -2;
-		this->ComplexXMax = 1;
-		this->ComplexYMin = -1.5;
-		this->ComplexYMax = 1.5;
-
-		this->ComplexWidth = ComplexXMax - ComplexXMin;
-		this->ComplexHeight = ComplexYMax - ComplexYMin;
+	this->ComplexXMin = -2;
+	this->ComplexXMax = 1;
+	this->ComplexYMin = -1.5;
+	this->ComplexYMax = 1.5;
 }
 
 vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter, ColorScheme scheme ) 
@@ -19,6 +16,9 @@ vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter, Colo
 	ComplexPoint z, zIncr;
 	int count = 0;
 
+	ComplexWidth = ComplexXMax - ComplexXMin;
+	ComplexHeight = ComplexYMax - ComplexYMin;
+
 	zIncr.x = ComplexWidth / float( nx );
 	zIncr.y = ComplexHeight / float( ny );
 
@@ -26,7 +26,6 @@ vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter, Colo
 	{
 		for( z.y = ComplexYMin; z.y < ComplexYMax; z.y += zIncr.y ) 
 		{
-			//TODO: should we use more subdivisions for more definition?
 			count = MandelbrotSqTransf( z, maxIter );
 			if( count >= maxIter )
 			{
