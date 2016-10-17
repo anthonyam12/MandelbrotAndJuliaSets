@@ -40,27 +40,27 @@ struct ComplexPoint
 class Julia 
 {
 	public:
+		Julia();
 		vector< ComplexPoint > GetPoints( ComplexPoint seed, int nx, int ny, int maxIters, ColorScheme scheme );
-		float GetComplexXMin();
-		float GetComplexXMax();
-		float GetComplexYMin();
-		float GetComplexYMax();
-		// may not need these
-		void SetComplexXMin( float xmin );
-		void SetComplexXMax( float xmax );
-		void SetComplexYMin( float ymin );
-		void SetComplexYMax( float ymax );
+		double GetComplexXMin();
+		double GetComplexXMax();
+		double GetComplexYMin();
+		double GetComplexYMax();
+
+		void SetComplexXMin( double xmin );
+		void SetComplexXMax( double xmax );
+		void SetComplexYMin( double ymin );
+		void SetComplexYMax( double ymax );
 	private:
 		ComplexPoint ComplexSquare( ComplexPoint z );
 		int JuliaSqTransf( ComplexPoint z, ComplexPoint seed, int maxIter );
-		void SetComplexGlobals( ComplexPoint seed );
 
-		float ComplexXMin;
-		float ComplexXMax;
-		float ComplexYMin;
-		float ComplexYMax;
-		float ComplexWidth;
-		float ComplexHeight;
+		double ComplexXMin;
+		double ComplexXMax;
+		double ComplexYMin;
+		double ComplexYMax;
+		double ComplexWidth;
+		double ComplexHeight;
 };
 
 class Julia_cu
@@ -82,7 +82,6 @@ class Mandelbrot
 		double GetComplexYMin();
 		double GetComplexYMax();
 
-		// may not need these
 		void SetComplexXMin( double xmin );
 		void SetComplexXMax( double xmax );
 		void SetComplexYMin( double ymin );
@@ -105,24 +104,23 @@ class Mandelbrot_cu
 		//void CalcPoint( float *x, float *y, float *r, float *g, float *b, float w, float h );
 		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters, Color colorScheme[7] );
 		
-		float GetComplexXMin();
-		float GetComplexXMax();
-		float GetComplexYMin();
-		float GetComplexYMax();
+		double GetComplexXMin();
+		double GetComplexXMax();
+		double GetComplexYMin();
+		double GetComplexYMax();
 
-		// may not need these
-		void SetComplexXMin( float xmin );
-		void SetComplexXMax( float xmax );
-		void SetComplexYMin( float ymin );
-		void SetComplexYMax( float ymax );
+		void SetComplexXMin( double xmin );
+		void SetComplexXMax( double xmax );
+		void SetComplexYMin( double ymin );
+		void SetComplexYMax( double ymax );
 	private:
 		ComplexPoint ComplexSquare( ComplexPoint z );
 		int MandelbrotSqTransf( ComplexPoint z, int maxIter );
-		float ComplexXMin;
-		float ComplexXMax;
-		float ComplexYMin;
-		float ComplexYMax;
-		float ComplexWidth;
-		float ComplexHeight;
+		double ComplexXMin;
+		double ComplexXMax;
+		double ComplexYMin;
+		double ComplexYMax;
+		double ComplexWidth;
+		double ComplexHeight;
 };
 

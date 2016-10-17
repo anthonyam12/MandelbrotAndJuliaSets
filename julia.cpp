@@ -1,23 +1,22 @@
 #include "global.h"
 
-void Julia::SetComplexGlobals( ComplexPoint seed ) 
+Julia::Julia( ) 
 {
 	this->ComplexXMin = -2.0;
 	this->ComplexXMax = 2.0;
 	this->ComplexYMin = -2.00;
 	this->ComplexYMax = 2.00;
-
-	this->ComplexHeight = ComplexXMax - ComplexXMin;
-	this->ComplexWidth = ComplexYMax - ComplexYMin;
 }
 
 vector< ComplexPoint > Julia::GetPoints( ComplexPoint seed, int nx, int ny, 
 										int maxIter, ColorScheme scheme )
 {
-	SetComplexGlobals( seed );
 	vector< ComplexPoint > points;
 	ComplexPoint z,  zIncr;
 	int count = 0;
+
+	this->ComplexHeight = ComplexXMax - ComplexXMin;
+	this->ComplexWidth = ComplexYMax - ComplexYMin;
 
 	zIncr.x = ComplexWidth / float( nx );
 	zIncr.y = ComplexHeight / float( ny );
@@ -115,22 +114,44 @@ int Julia::JuliaSqTransf( ComplexPoint z0, ComplexPoint seed, int maxIter )
 	return count;
 }
 
-float Julia::GetComplexXMin()
+double Julia::GetComplexXMin()
 {
 	return ComplexXMin;
 }
 
-float Julia::GetComplexXMax() 
+double Julia::GetComplexXMax() 
 {
 	return ComplexXMax;
 }
 
-float Julia::GetComplexYMin()
+double Julia::GetComplexYMin()
 {
 	return ComplexYMin;
 }
 
-float Julia::GetComplexYMax() 
+double Julia::GetComplexYMax() 
 {
 	return ComplexYMax;
+}
+
+void Julia::SetComplexXMin( double xmin )
+{
+	this->ComplexXMin = xmin;
+}
+
+
+void Julia::SetComplexXMax( double xmax )
+{
+	cout << "here" << xmax << endl;
+	this->ComplexXMax = xmax;
+}
+
+void Julia::SetComplexYMin( double ymin )
+{
+	this->ComplexYMin = ymin;
+}
+
+void Julia::SetComplexYMax( double ymax )
+{
+	this->ComplexYMax = ymax;
 }

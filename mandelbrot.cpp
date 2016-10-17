@@ -83,10 +83,10 @@ void reshape( int w, int h )
 		glutReshapeWindow( ScreenWidth, ScreenHeight );
 	}
 
-	float xmin = 0;
-	float xmax = 0;
-	float ymin = 0;
-	float ymax = 0;
+	double xmin = 0;
+	double xmax = 0;
+	double ymin = 0;
+	double ymax = 0;
 
 	if( !IsJulia )
 	{
@@ -139,9 +139,7 @@ void keyboard( unsigned char key, int x, int y )
 	double xlength = xmax - xmin;
 	double ylength = ymax - ymin;
 
-	cout << "Before zoom: " << xmin << ", " << xmax << " :: " << ymin << ", " << ymax << endl;
-
-	// +/- keys for zoom (scaling transform)
+	// +/- keys for zoom 
 	// J - toggle between Mandelbrot and Julia Sets at Current Cursor position
 	// 	   (open new window for Julia)
 	// C - change color maps
@@ -150,25 +148,49 @@ void keyboard( unsigned char key, int x, int y )
 	switch ( key ) 
 	{
 		case Plus:
-			// change these to percentages
-			mandelbrot.SetComplexXMax( xmax - ( xlength*.1 ) );
-			mandelbrot.SetComplexXMin( xmin + ( xlength*.1 ) );
-			mandelbrot.SetComplexYMax( ymax - ( ylength*.1 ) );
-			mandelbrot.SetComplexYMin( ymin + ( ylength*.1 ) );
-			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			// TODO: should probably replace the params to GetPoints to screenheight and width
+			// TODO: there is probably a more efficient way to handle the IsJulia stuff
+			if ( !IsJulia )
+			{
+				mandelbrot.SetComplexXMax( xmax - ( xlength*.1 ) );
+				mandelbrot.SetComplexXMin( xmin + ( xlength*.1 ) );
+				mandelbrot.SetComplexYMax( ymax - ( ylength*.1 ) );
+				mandelbrot.SetComplexYMin( ymin + ( ylength*.1 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			}
+			else 
+			{
+				julia.SetComplexXMax( xmax - ( xlength*.1 ) );
+				julia.SetComplexXMin( xmin + ( xlength*.1 ) );
+				julia.SetComplexYMax( ymax - ( ylength*.1 ) );
+				julia.SetComplexYMin( ymin + ( ylength*.1 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+			}
 			break;
 		case Minus:
-			mandelbrot.SetComplexXMax( xmax + ( xlength*.1 ) );
-			mandelbrot.SetComplexXMin( xmin - ( xlength*.1 ) );
-			mandelbrot.SetComplexYMax( ymax + ( ylength*.1 ) );
-			mandelbrot.SetComplexYMin( ymin - ( ylength*.1 ) );
-			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			// TODO: for zoom out we need to add on more than 10% because of how precents work, obvs
+			if ( !IsJulia )
+			{
+				mandelbrot.SetComplexXMax( xmax + ( xlength*.1 ) );
+				mandelbrot.SetComplexXMin( xmin - ( xlength*.1 ) );
+				mandelbrot.SetComplexYMax( ymax + ( ylength*.1 ) );
+				mandelbrot.SetComplexYMin( ymin - ( ylength*.1 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			}
+			else 
+			{
+				julia.SetComplexXMax( xmax + ( xlength*.1 ) );
+				julia.SetComplexXMin( xmin - ( xlength*.1 ) );
+				julia.SetComplexYMax( ymax + ( ylength*.1 ) );
+				julia.SetComplexYMin( ymin - ( ylength*.1 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+			}
 			break;
 		case J:
 			// Calc/Open Julia Set
 			if ( !IsJulia )
 			{
-				JuliaPoints = julia.GetPoints( JuliaSeed, 1000, 1000, 1000, CurrentScheme );
+				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
 			}
 			IsJulia = !IsJulia;
 			break;
@@ -224,34 +246,64 @@ void special( int key, int x, int y )
 
 	switch( key )
 	{
-		case GLUT_KEY_RIGHT:	
-			mandelbrot.SetComplexXMin( xmin + ( xlength*.3 ) );
-			mandelbrot.SetComplexXMax( xmax + ( xlength*.3 ) );			
-			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+		case GLUT_KEY_RIGHT:
+			if ( !IsJulia )
+			{
+				mandelbrot.SetComplexXMin( xmin + ( xlength*.3 ) );
+				mandelbrot.SetComplexXMax( xmax + ( xlength*.3 ) );			
+				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			}
+			else 
+			{	
+				julia.SetComplexXMin( xmin + ( xlength*.3 ) );
+				julia.SetComplexXMax( xmax + ( xlength*.3 ) );			
+				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+			}
 			break;
 		case GLUT_KEY_LEFT:
-			mandelbrot.SetComplexXMin( xmin - ( xlength*.3 ) );
-			mandelbrot.SetComplexXMax( xmax - ( xlength*.3 ) );
-			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			if ( !IsJulia )
+			{
+				mandelbrot.SetComplexXMin( xmin - ( xlength*.3 ) );
+				mandelbrot.SetComplexXMax( xmax - ( xlength*.3 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			} 
+			else 
+			{	
+				julia.SetComplexXMin( xmin - ( xlength*.3 ) );
+				julia.SetComplexXMax( xmax - ( xlength*.3 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+			}
 			break;
-		case GLUT_KEY_UP:	
-			mandelbrot.SetComplexYMin( ymin + ( ylength*.3 ) );
-			mandelbrot.SetComplexYMax( ymax + ( ylength*.3 ) );
-			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+		case GLUT_KEY_UP:
+			if ( !IsJulia )
+			{
+				mandelbrot.SetComplexYMin( ymin + ( ylength*.3 ) );
+				mandelbrot.SetComplexYMax( ymax + ( ylength*.3 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			}
+			else 
+			{
+				julia.SetComplexYMin( ymin + ( ylength*.3 ) );
+				julia.SetComplexYMax( ymax + ( ylength*.3 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+			}
 			break;
-		case GLUT_KEY_DOWN:	
-			mandelbrot.SetComplexYMin( ymin - ( ylength*.3 ) );
-			mandelbrot.SetComplexYMax( ymax - ( ylength*.3 ) );
-			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+		case GLUT_KEY_DOWN:
+			if ( !IsJulia )
+			{
+				mandelbrot.SetComplexYMin( ymin - ( ylength*.3 ) );
+				mandelbrot.SetComplexYMax( ymax - ( ylength*.3 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+			}
+			else 
+			{
+				julia.SetComplexYMin( ymin - ( ylength*.3 ) );
+				julia.SetComplexYMax( ymax - ( ylength*.3 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+			}
 			break;
 	}
 
-	xmin = mandelbrot.GetComplexXMin();
-	xmax = mandelbrot.GetComplexXMax();
-	ymin = mandelbrot.GetComplexYMin();
-	ymax = mandelbrot.GetComplexYMax();
-
-	cout << "After Pan: " << xmin << ", " << xmax << " :: " << ymin << ", " << ymax << endl;
 	glutPostRedisplay();
 }
 
@@ -303,8 +355,8 @@ void mousemove( int x, int y )
 		double plotx = xmin + ( x * gridStepsX );
 		double ploty = ymin + ( y * gridStepsY );
 
-		JuliaSeed.x = plotx;
-		JuliaSeed.y = ploty;
+		//JuliaSeed.x = plotx;
+		//JuliaSeed.y = ploty;
 	}
 	//cout << JuliaSeed.x << ", " << JuliaSeed.y << endl;
 }
