@@ -3,8 +3,8 @@
 
 Mandelbrot::Mandelbrot()
 {
-		this->ComplexXMin = -2.00;
-		this->ComplexXMax = 1.0;
+		this->ComplexXMin = -2;
+		this->ComplexXMax = 1;
 		this->ComplexYMin = -1.5;
 		this->ComplexYMax = 1.5;
 
@@ -14,14 +14,6 @@ Mandelbrot::Mandelbrot()
 
 vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter, ColorScheme scheme ) 
 {
-	//TODO: Get the colors for the points from colorScheme[i] rather than setting to the book color
-	//TODO: for animation we will go through our stored colored schemes and set the color in the 
-	//TODO: MandelbrotPoints vector rather than calling this metod. As a matter of fact, it might
-	//TODO: be best change the Color in the point struct to an int colorIndex; which would be an 
-	//TODO: index to the color scheme we are currently using (values 0-6). Then we would just reset
-	//TODO: a global colorScheme[7] array's values to the next color scheme and redraw the points.
-	//TODO: We wouldn't need to change the points' colors at all since it is just an index to our 
-	//TODO: current color scheme.
 	vector< ComplexPoint > points;
 
 	ComplexPoint z, zIncr;
@@ -148,4 +140,20 @@ float Mandelbrot::GetComplexYMax()
 void Mandelbrot::SetComplexXMin( float xmin )
 {
 	this->ComplexXMin = xmin;
+}
+
+
+void Mandelbrot::SetComplexXMax( float xmax )
+{
+	this->ComplexXMax = xmax;
+}
+
+void Mandelbrot::SetComplexYMin( float ymin )
+{
+	this->ComplexYMin = ymin;
+}
+
+void Mandelbrot::SetComplexYMax( float ymax )
+{
+	this->ComplexYMax = ymax;
 }

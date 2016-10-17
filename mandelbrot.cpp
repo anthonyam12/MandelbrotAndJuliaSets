@@ -126,6 +126,11 @@ void keyboard( unsigned char key, int x, int y )
 	switch ( key ) 
 	{
 		case Plus:
+			mandelbrot.SetComplexXMax( mandelbrot.GetComplexXMax() - .05 );
+			mandelbrot.SetComplexXMin( mandelbrot.GetComplexXMin() - .05 );
+			mandelbrot.SetComplexYMax( mandelbrot.GetComplexYMax() - .05 );
+			mandelbrot.SetComplexYMin( mandelbrot.GetComplexYMin() - .05 );
+			MandelbrotPoints = mandelbrot.GetPoints( 900, 900, 1000, CurrentScheme );
 			break;
 		case Minus:
 			break;
@@ -207,6 +212,7 @@ void mousemove( int x, int y )
 		JuliaSeed.x = plotx;
 		JuliaSeed.y = ploty;
 	}
+	cout << JuliaSeed.x << ", " << JuliaSeed.y << endl;
 }
 
 void update( int value )
