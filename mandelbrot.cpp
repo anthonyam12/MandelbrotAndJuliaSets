@@ -136,6 +136,10 @@ void keyboard( unsigned char key, int x, int y )
 		ymin = julia.GetComplexYMin();
 		ymax = julia.GetComplexYMax();
 	}
+	float xlength = xmax - xmin;
+	float ylength = ymax - ymin;
+
+	cout << "Before zoom: " << xmin << ", " << xmax << " :: " << ymin << ", " << ymax << endl;
 
 	// +/- keys for zoom (scaling transform)
 	// J - toggle between Mandelbrot and Julia Sets at Current Cursor position
@@ -147,17 +151,17 @@ void keyboard( unsigned char key, int x, int y )
 	{
 		case Plus:
 			// change these to percentages
-			mandelbrot.SetComplexXMax( xmax - ( xmax*.1 ) );
-			mandelbrot.SetComplexXMin( xmin - ( xmin*.1 ) );
-			mandelbrot.SetComplexYMax( ymax - ( ymax*.1 ) );
-			mandelbrot.SetComplexYMin( ymin - ( ymin*.1 ) );
+			mandelbrot.SetComplexXMax( xmax - ( xlength*.1 ) );
+			mandelbrot.SetComplexXMin( xmin + ( xlength*.1 ) );
+			mandelbrot.SetComplexYMax( ymax - ( ylength*.1 ) );
+			mandelbrot.SetComplexYMin( ymin + ( ylength*.1 ) );
 			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
 			break;
 		case Minus:
-			mandelbrot.SetComplexXMax( xmax + ( xmax*.1 ) );
-			mandelbrot.SetComplexXMin( xmin + ( xmin*.1 ) );
-			mandelbrot.SetComplexYMax( ymax + ( ymax*.1 ) );
-			mandelbrot.SetComplexYMin( ymin + ( ymin*.1 ) );
+			mandelbrot.SetComplexXMax( xmax + ( xlength*.1 ) );
+			mandelbrot.SetComplexXMin( xmin - ( xlength*.1 ) );
+			mandelbrot.SetComplexYMax( ymax + ( ylength*.1 ) );
+			mandelbrot.SetComplexYMin( ymin - ( ylength*.1 ) );
 			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
 			break;
 		case J:
@@ -238,7 +242,13 @@ void special( int key, int x, int y )
 			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
 			break;
 	}
-	cout << "After Pan: " << xmin << ", " << xmax << endl;
+
+	xmin = mandelbrot.GetComplexXMin();
+	xmax = mandelbrot.GetComplexXMax();
+	ymin = mandelbrot.GetComplexYMin();
+	ymax = mandelbrot.GetComplexYMax();
+
+	cout << "After Pan: " << xmin << ", " << xmax << " :: " << ymin << ", " << ymax << endl;
 	glutPostRedisplay();
 }
 
