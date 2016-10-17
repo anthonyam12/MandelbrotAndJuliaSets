@@ -40,6 +40,8 @@ void reshape( int w, int h );
 void keyboard( unsigned char key, int x, int y );
 void mouseclick( int button, int state, int x, int y );
 void mousemove( int x, int y );
+void update( int value );
+void idle();
 
 // Misc. Functions
 void initOpenGL();

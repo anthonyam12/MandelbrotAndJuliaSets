@@ -146,6 +146,10 @@ void keyboard( unsigned char key, int x, int y )
 			SetPointColors();
 			break;
 		case A:
+			if ( !Animating )
+			{
+				CurrentScheme = ColorSchemes.at(0);
+			}
 			Animating = !Animating;
 			break;
 	}	
@@ -205,6 +209,50 @@ void mousemove( int x, int y )
 	}
 }
 
+void update( int value )
+{
+	if ( Animating ) 
+	{
+		CurrentScheme.black = CurrentScheme.color10;
+
+		CurrentScheme.color1 = CurrentScheme.color2;
+		CurrentScheme.color2 = CurrentScheme.color3;
+		CurrentScheme.color3 = CurrentScheme.color4;
+		CurrentScheme.color4 = CurrentScheme.color5;
+		CurrentScheme.color5 = CurrentScheme.color6;
+		CurrentScheme.color6 = CurrentScheme.color7;
+		CurrentScheme.color7 = CurrentScheme.color8;
+		CurrentScheme.color8 = CurrentScheme.color9;
+		CurrentScheme.color9 = CurrentScheme.color10;
+		CurrentScheme.color10 = CurrentScheme.black;
+		glutPostRedisplay();
+	}
+	SetPointColors();
+	
+	glutTimerFunc( 100, update, 0 );
+}
+
+void idle() 
+{
+	if ( Animating ) 
+	{
+		CurrentScheme.black = CurrentScheme.color10;
+
+		CurrentScheme.color1 = CurrentScheme.color2;
+		CurrentScheme.color2 = CurrentScheme.color3;
+		CurrentScheme.color3 = CurrentScheme.color4;
+		CurrentScheme.color4 = CurrentScheme.color5;
+		CurrentScheme.color5 = CurrentScheme.color6;
+		CurrentScheme.color6 = CurrentScheme.color7;
+		CurrentScheme.color7 = CurrentScheme.color8;
+		CurrentScheme.color8 = CurrentScheme.color9;
+		CurrentScheme.color9 = CurrentScheme.color10;
+		CurrentScheme.color10 = CurrentScheme.black;
+		glutPostRedisplay();
+	}
+	SetPointColors();
+}
+
 /*******************************************************************************
  *								Misc. Functions								   *
  ******************************************************************************/
@@ -225,6 +273,8 @@ void initOpenGL( void )
 	glutReshapeFunc( reshape );
 	glutKeyboardFunc( keyboard );
 	glutPassiveMotionFunc( mousemove );
+	//glutTimerFunc( 100, update, 0 );
+	//glutIdleFunc( idle );
 }
 
 // TODO:
