@@ -34,10 +34,10 @@ void display( void )
 {
 	glLoadIdentity();
 
-	float xmin = 0;
-	float xmax = 0;
-	float ymin = 0;
-	float ymax = 0;
+	double xmin = 0;
+	double xmax = 0;
+	double ymin = 0;
+	double ymax = 0;
 
 	if( !IsJulia )
 	{
@@ -117,10 +117,10 @@ void keyboard( unsigned char key, int x, int y )
 {
 
 	// might move this inside zoom in/out and pan cases
-	float xmin = 0;
-	float xmax = 0;
-	float ymin = 0;
-	float ymax = 0;
+	double xmin = 0;
+	double xmax = 0;
+	double ymin = 0;
+	double ymax = 0;
 
 	if( !IsJulia )
 	{
@@ -136,8 +136,8 @@ void keyboard( unsigned char key, int x, int y )
 		ymin = julia.GetComplexYMin();
 		ymax = julia.GetComplexYMax();
 	}
-	float xlength = xmax - xmin;
-	float ylength = ymax - ymin;
+	double xlength = xmax - xmin;
+	double ylength = ymax - ymin;
 
 	cout << "Before zoom: " << xmin << ", " << xmax << " :: " << ymin << ", " << ymax << endl;
 
@@ -194,12 +194,15 @@ void keyboard( unsigned char key, int x, int y )
 	glutPostRedisplay();
 }
 
+// TODO: we could make a struct to strore the xmin, xmax, ymin, ymax and a function
+// that will return that struct. This would remove all of this code reuse pertaining to
+// xmin/max and ymin/max
 void special( int key, int x, int y )
 {
-	float xmin = 0;
-	float xmax = 0;
-	float ymin = 0;
-	float ymax = 0;
+	double xmin = 0;
+	double xmax = 0;
+	double ymin = 0;
+	double ymax = 0;
 
 	if( !IsJulia )
 	{
@@ -216,8 +219,8 @@ void special( int key, int x, int y )
 		ymax = julia.GetComplexYMax();
 	}
 	
-	float xlength = xmax - xmin;
-	float ylength = ymax - ymin;
+	double xlength = xmax - xmin;
+	double ylength = ymax - ymin;
 
 	switch( key )
 	{
@@ -263,10 +266,10 @@ void mousemove( int x, int y )
 	y = ScreenHeight - y;
 
 
-	float xmin = 0;
-	float xmax = 0;
-	float ymin = 0;
-	float ymax = 0;
+	double xmin = 0;
+	double xmax = 0;
+	double ymin = 0;
+	double ymax = 0;
 
 	if ( !IsJulia ) 
 	{
@@ -277,11 +280,11 @@ void mousemove( int x, int y )
 		ymax = mandelbrot.GetComplexYMax();
 
 
-		float gridStepsX = ( ( fabs(xmax) + fabs(xmin) ) / ScreenWidth );
-		float plotx = xmin + ( x * gridStepsX );
+		double gridStepsX = ( ( fabs(xmax) + fabs(xmin) ) / ScreenWidth );
+		double plotx = xmin + ( x * gridStepsX );
 
-		float gridStepsY = ( ( fabs(ymax) + fabs(ymin) ) / ScreenHeight );
-		float ploty = ymin + ( y * gridStepsY );
+		double gridStepsY = ( ( fabs(ymax) + fabs(ymin) ) / ScreenHeight );
+		double ploty = ymin + ( y * gridStepsY );
 
 		JuliaSeed.x = plotx;
 		JuliaSeed.y = ploty;
@@ -294,11 +297,11 @@ void mousemove( int x, int y )
 		ymin = julia.GetComplexYMin();
 		ymax = julia.GetComplexYMax();
 
-		float gridStepsX = ( ( fabs(xmax) + fabs(xmin) ) / ScreenWidth );
-		float gridStepsY = ( ( fabs(ymax) + fabs(ymin) ) / ScreenHeight );
+		double gridStepsX = ( ( fabs(xmax) + fabs(xmin) ) / ScreenWidth );
+		double gridStepsY = ( ( fabs(ymax) + fabs(ymin) ) / ScreenHeight );
 		
-		float plotx = xmin + ( x * gridStepsX );
-		float ploty = ymin + ( y * gridStepsY );
+		double plotx = xmin + ( x * gridStepsX );
+		double ploty = ymin + ( y * gridStepsY );
 
 		JuliaSeed.x = plotx;
 		JuliaSeed.y = ploty;

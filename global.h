@@ -31,8 +31,8 @@ struct ColorScheme
 
 struct ComplexPoint 
 {
-	float x;
-	float y;
+	double x;
+	double y;
 	Color color;
 	int schemeIndex;
 };
@@ -77,25 +77,25 @@ class Mandelbrot
 		Mandelbrot();
 		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters, ColorScheme scheme );
 		
-		float GetComplexXMin();
-		float GetComplexXMax();
-		float GetComplexYMin();
-		float GetComplexYMax();
+		double GetComplexXMin();
+		double GetComplexXMax();
+		double GetComplexYMin();
+		double GetComplexYMax();
 
 		// may not need these
-		void SetComplexXMin( float xmin );
-		void SetComplexXMax( float xmax );
-		void SetComplexYMin( float ymin );
-		void SetComplexYMax( float ymax );
+		void SetComplexXMin( double xmin );
+		void SetComplexXMax( double xmax );
+		void SetComplexYMin( double ymin );
+		void SetComplexYMax( double ymax );
 	private:
 		ComplexPoint ComplexSquare( ComplexPoint z );
 		int MandelbrotSqTransf( ComplexPoint z, int maxIter );
-		float ComplexXMin;
-		float ComplexXMax;
-		float ComplexYMin;
-		float ComplexYMax;
-		float ComplexWidth;
-		float ComplexHeight;
+		double ComplexXMin;
+		double ComplexXMax;
+		double ComplexYMin;
+		double ComplexYMax;
+		double ComplexWidth;
+		double ComplexHeight;
 };
 
 class Mandelbrot_cu

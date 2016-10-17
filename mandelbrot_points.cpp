@@ -19,8 +19,8 @@ vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter, Colo
 	ComplexWidth = ComplexXMax - ComplexXMin;
 	ComplexHeight = ComplexYMax - ComplexYMin;
 
-	zIncr.x = ComplexWidth / float( nx );
-	zIncr.y = ComplexHeight / float( ny );
+	zIncr.x = ComplexWidth / double( nx );
+	zIncr.y = ComplexHeight / double( ny );
 
 	for( z.x = ComplexXMin; z.x < ComplexXMax; z.x += zIncr.x )
 	{
@@ -115,44 +115,44 @@ int Mandelbrot::MandelbrotSqTransf( ComplexPoint z0, int maxIter )
 }
 
 
-float Mandelbrot::GetComplexXMin()
+double Mandelbrot::GetComplexXMin()
 {
 	return this->ComplexXMin;
 }
 
-float Mandelbrot::GetComplexXMax()
+double Mandelbrot::GetComplexXMax()
 {
 	return this->ComplexXMax;
 }
 
-float Mandelbrot::GetComplexYMin()
+double Mandelbrot::GetComplexYMin()
 {
 	return this->ComplexYMin;
 }
 
-float Mandelbrot::GetComplexYMax()
+double Mandelbrot::GetComplexYMax()
 {
 	return this->ComplexYMax;
 }
 
 
-void Mandelbrot::SetComplexXMin( float xmin )
+void Mandelbrot::SetComplexXMin( double xmin )
 {
 	this->ComplexXMin = xmin;
 }
 
 
-void Mandelbrot::SetComplexXMax( float xmax )
+void Mandelbrot::SetComplexXMax( double xmax )
 {
 	this->ComplexXMax = xmax;
 }
 
-void Mandelbrot::SetComplexYMin( float ymin )
+void Mandelbrot::SetComplexYMin( double ymin )
 {
 	this->ComplexYMin = ymin;
 }
 
-void Mandelbrot::SetComplexYMax( float ymax )
+void Mandelbrot::SetComplexYMax( double ymax )
 {
 	this->ComplexYMax = ymax;
 }
