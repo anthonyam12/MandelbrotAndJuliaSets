@@ -146,6 +146,7 @@ void keyboard( unsigned char key, int x, int y )
 			SetPointColors();
 			break;
 		case A:
+			Animating = !Animating;
 			break;
 	}	
 	glutPostRedisplay();

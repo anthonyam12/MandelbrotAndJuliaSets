@@ -27,8 +27,9 @@ Mandelbrot_cu mandelbrotCu;			// Mandelbrot calculations on the GPU
 
 vector< ColorScheme > ColorSchemes;	// Colors for the points
 ColorScheme CurrentScheme;			// Scheme currently being used
-ComplexPoint JuliaSeed;				// Seed for the Julia Ser
-bool IsJulia = false;
+ComplexPoint JuliaSeed;				// Seed for the Julia Set
+bool IsJulia = false;				// Display the Julia set or Mandelbrot Set
+bool Animating = false;				// Are we animating?
 
 float ScreenWidth = 900;			// Window's width
 float ScreenHeight = 900;			// Window's height
