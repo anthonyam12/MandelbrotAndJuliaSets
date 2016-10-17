@@ -11,11 +11,11 @@ void Julia::SetComplexGlobals( ComplexPoint seed )
 	this->ComplexWidth = ComplexYMax - ComplexYMin;
 }
 
-vector< ComplexPoint > Julia::GetPoints( ComplexPoint seed, int nx, int ny,  int maxIter )
+vector< ComplexPoint > Julia::GetPoints( ComplexPoint seed, int nx, int ny, 
+										int maxIter, ColorScheme scheme )
 {
 	SetComplexGlobals( seed );
 	vector< ComplexPoint > points;
-	Color ptColor;
 	ComplexPoint z,  zIncr;
 	int count = 0;
 
@@ -30,68 +30,59 @@ vector< ComplexPoint > Julia::GetPoints( ComplexPoint seed, int nx, int ny,  int
 			count = JuliaSqTransf( z, seed, maxIter );
 			if( count >= maxIter )
 			{
-				ptColor.r = ptColor.g = ptColor.b = 0.0;
+				z.color = scheme.black;
+				z.schemeIndex = 0;
 			}
 			else if ( count > ( maxIter / 8) ) 
 			{
-				ptColor.r = 1.0;
-				ptColor.g = 0.5;
-				ptColor.b = 0.0;
+				z.color = scheme.color1;
+				z.schemeIndex = 1;
 			}
 			else if ( count > ( maxIter / 10) ) 
 			{
-				ptColor.r = 1.0;
-				ptColor.g = 0.0;
-				ptColor.b = 0.0;
+				z.color = scheme.color2;
+				z.schemeIndex = 2;
 			}
 			else if ( count > ( maxIter / 20) ) 
 			{
-				ptColor.r = 0.0;
-				ptColor.g = 0.0;
-				ptColor.b = 0.5;
+				z.color = scheme.color3;
+				z.schemeIndex = 3;
 			}
 			else if ( count > ( maxIter / 40) ) 
 			{
-				ptColor.r = 1.0;
-				ptColor.g = 1.0;
-				ptColor.b = 0.0;
+				z.color = scheme.color4;
+				z.schemeIndex = 4;
 			}
 			else if ( count > ( maxIter / 100) ) 
 			{
-				ptColor.r = 0.0;
-				ptColor.g = 0.3;
-				ptColor.b = 0.0;
+				z.color = scheme.color5;
+				z.schemeIndex = 5;
 			}
 			else if ( count > (maxIter / 200) )
 			{
-				ptColor.r = 0.0;
-				ptColor.g = 0.3;
-				ptColor.b = 0.3;
+				z.color = scheme.color6;
+				z.schemeIndex = 6;
 			}
 			else if ( count > (maxIter / 400) )
 			{
-				ptColor.r = 0.0;
-				ptColor.g = 0.5;
-				ptColor.b = 0.5;
+				z.color = scheme.color7;
+				z.schemeIndex = 7;
 			}
 			else if ( count > (maxIter / 600) )
 			{
-				ptColor.r = 0.0;
-				ptColor.g = 0.7;
-				ptColor.b = 0.7;
+				z.color = scheme.color8;
+				z.schemeIndex = 8;
 			}
 			else if ( count > (maxIter / 800) )
 			{
-				ptColor.r = 0.0;
-				ptColor.g = 0.9;
-				ptColor.b = 0.9;
+				z.color = scheme.color9;
+				z.schemeIndex = 9;
 			}
 			else 
 			{
-				ptColor.r = 0.0;
-				ptColor.g = ptColor.b = 1.0;
+				z.color = scheme.color10;
+				z.schemeIndex = 10;
 			}
-			z.color = ptColor;
 			points.push_back(z);
 		}
 	}

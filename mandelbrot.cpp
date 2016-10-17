@@ -4,11 +4,14 @@ int manWin, julWin;
 
 int main( int argc, char* argv[] )
 {
-	// get Mandelbrot points
-	MandelbrotPoints = mandelbrot.GetPoints(1000, 1000, 1000, NULL);
-	vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
+	srand( time( NULL ) );
 
-	cout << test.size() << " == " << MandelbrotPoints.size() << endl;
+	CreateColorVector();
+	CurrentScheme = ColorSchemes.at(0);
+
+	// get Mandelbrot points
+	MandelbrotPoints = mandelbrot.GetPoints( 1000, 1000, 1000, CurrentScheme );
+	vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
 
 	// Initialize glut/openGL
 	glutInit( &argc, argv );
@@ -130,13 +133,17 @@ void keyboard( unsigned char key, int x, int y )
 			// Calc/Open Julia Set
 			if ( !IsJulia )
 			{
-				JuliaPoints = julia.GetPoints( JuliaSeed, 1000, 1000, 1000 );
+				JuliaPoints = julia.GetPoints( JuliaSeed, 1000, 1000, 1000, CurrentScheme );
 			}
 			IsJulia = !IsJulia;
 			break;
 		case C:
+			ChangeColor();
+			SetPointColors();
 			break;
 		case R:
+			GenerateRandomColorScheme();
+			SetPointColors();
 			break;
 		case A:
 			break;
@@ -217,4 +224,171 @@ void initOpenGL( void )
 	glutReshapeFunc( reshape );
 	glutKeyboardFunc( keyboard );
 	glutPassiveMotionFunc( mousemove );
+}
+
+// TODO:
+// Alternatively (for this method and SetPointColors) we could add a 
+// GetColor( int index ) and SetColor( int index ) to a ColorScheme class
+// where there is a swtich statement to determine which color would be 
+// retrieved or set. Essentially would move code from main to elsewhere.
+// ^ is probably the best choice
+void GenerateRandomColorScheme()
+{
+	float r;
+	float g;
+	float b;
+
+	ColorScheme randomScheme;
+	for( int i = 0; i < 11; i++ ) 
+	{
+		r = (float)(rand()) / (float)(RAND_MAX);
+		g = (float)(rand()) / (float)(RAND_MAX);
+		b = (float)(rand()) / (float)(RAND_MAX);
+		switch( i )
+		{
+			case 0:
+				// TODO:
+				// keep these black or change to random color??
+				// black looks more right.
+				randomScheme.black = Color( 0, 0, 0 );
+				break;
+			case 1:
+				randomScheme.color1 = Color( r, g, b );
+				break;
+			case 2:
+				randomScheme.color2 = Color( r, g, b );
+				break;
+			case 3:
+				randomScheme.color3 = Color( r, g, b );
+				break;
+			case 4:
+				randomScheme.color4 = Color( r, g, b );
+				break;
+			case 5:
+				randomScheme.color5 = Color( r, g, b );
+				break;
+			case 6:
+				randomScheme.color6 = Color( r, g, b );
+				break;
+			case 7:
+				randomScheme.color7 = Color( r, g, b );
+				break;
+			case 8:
+				randomScheme.color8 = Color( r, g, b );
+				break;
+			case 9:
+				randomScheme.color9 = Color( r, g, b );
+				break;
+			case 10:
+				randomScheme.color10 = Color( r, g, b );
+				break;
+		}
+	}
+	ColorSchemes.push_back( randomScheme );
+	CurrentScheme = randomScheme;
+}
+
+void CreateColorVector() 
+{
+	ColorScheme scheme;
+	scheme.black = Color( 0, 0, 0 );
+
+	scheme.color1 = Color( 1, .5, 0 );
+	scheme.color2 = Color( 1, 0, 0 );
+	scheme.color3 = Color( 0, 0, .5 );
+	scheme.color4 = Color( 1, 1, 0 );
+	scheme.color5 = Color( 0, .3, 0 );
+	scheme.color6 = Color( 0, .3, .3 );
+	scheme.color7 = Color( 0, .5, .5 );
+	scheme.color8 = Color( 0, .7, .7 );
+	scheme.color9 = Color( 0, .9, .9 );
+	scheme.color10 = Color( 0, 1, 1 );
+	ColorSchemes.push_back( scheme );
+
+	scheme.color1 = Color( 0, .5, 1 );
+	scheme.color2 = Color( 0, 1, .7 );
+	scheme.color3 = Color( .7, 0, 0);
+	scheme.color4 = Color( .5, .5, 0 );
+	scheme.color5 = Color( 1, 0, .5 );
+	scheme.color6 = Color( .3, .3, .3 );
+	scheme.color7 = Color( .5, .5, .3 );
+	scheme.color8 = Color( .7, .7, .3 );
+	scheme.color9 = Color( .9, .9, .3 );
+	scheme.color10 = Color( 1, 1, 1 );
+	ColorSchemes.push_back( scheme );
+}
+
+void ChangeColor() 
+{
+	int index = rand() % ColorSchemes.size();
+	ColorScheme newScheme = ColorSchemes.at(index);
+	
+	// Make sure we don't get the same color
+	while ( EqualSchemes( newScheme, CurrentScheme ) ) 
+	{
+		index = rand() % ColorSchemes.size();
+		newScheme = ColorSchemes.at(index);
+	}
+	CurrentScheme = newScheme;
+}
+
+// Alternatively could make ColorScheme a class with an equals method.
+// The alternative is probably better
+bool EqualSchemes( ColorScheme scheme1, ColorScheme scheme2 )
+{
+	return scheme1.color1.equals( scheme2.color1 ) &&
+		   scheme1.color2.equals( scheme2.color2 ) &&
+		   scheme1.color3.equals( scheme2.color3 ) &&
+		   scheme1.color4.equals( scheme2.color4 ) &&
+		   scheme1.color5.equals( scheme2.color5 ) &&
+		   scheme1.color6.equals( scheme2.color6 ) &&
+		   scheme1.color7.equals( scheme2.color7 ) &&
+		   scheme1.color8.equals( scheme2.color8 ) &&
+		   scheme1.color9.equals( scheme2.color9 ) &&
+		   scheme1.color10.equals( scheme2.color10 );
+}
+
+void SetPointColors()
+{
+	vector< ComplexPoint > &pointVec = IsJulia ? JuliaPoints : MandelbrotPoints;
+	for( int i = 0; i < pointVec.size(); i++ ) 
+	{
+		ComplexPoint &pt = pointVec.at(i);
+		switch( pt.schemeIndex )
+		{
+			case 0:
+				pt.color = CurrentScheme.black;
+				break;
+			case 1:
+				pt.color = CurrentScheme.color1;
+				break;
+			case 2:
+				pt.color = CurrentScheme.color2;
+				break;
+			case 3:
+				pt.color = CurrentScheme.color3;
+				break;
+			case 4:
+				pt.color = CurrentScheme.color4;
+				break;
+			case 5:
+				pt.color = CurrentScheme.color5;
+				break;
+			case 6:
+				pt.color = CurrentScheme.color6;
+				break;
+			case 7:
+				pt.color = CurrentScheme.color7;
+				break;
+			case 8:
+				pt.color = CurrentScheme.color8;
+				break;
+			case 9:
+				pt.color = CurrentScheme.color9;
+				break;
+			case 10:
+				pt.color = CurrentScheme.color10;
+				break;
+		}
+	}
 }

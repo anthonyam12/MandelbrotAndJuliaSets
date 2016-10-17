@@ -1,6 +1,8 @@
 //#include <iostream> 
-#include <GL/freeglut.h>
-#include <math.h>
+#include <GL/freeglut.h>	// OpenGL utilities, window manager
+#include <math.h>			// may not need - check
+#include <time.h>			// random see
+#include <stdlib.h>			// rand()
 
 #include "global.h"
 
@@ -14,20 +16,22 @@ const int C = 'c';
 const int R = 'r';
 const int A = 'a';
 
+
 // Globals
 vector<ComplexPoint> MandelbrotPoints;
 vector<ComplexPoint> JuliaPoints;
 
-Julia julia;
-Mandelbrot mandelbrot;
-Mandelbrot_cu mandelbrotCu;
+Julia julia;						// Class to get Julia points
+Mandelbrot mandelbrot;				// Class to get Mandebrot points
+Mandelbrot_cu mandelbrotCu;			// Mandelbrot calculations on the GPU
 
-Color ColorSchemes[7];
-ComplexPoint JuliaSeed;
+vector< ColorScheme > ColorSchemes;	// Colors for the points
+ColorScheme CurrentScheme;			// Scheme currently being used
+ComplexPoint JuliaSeed;				// Seed for the Julia Ser
 bool IsJulia = false;
 
-float ScreenWidth = 900;
-float ScreenHeight = 900;
+float ScreenWidth = 900;			// Window's width
+float ScreenHeight = 900;			// Window's height
 
 // OpenGL Callbacks
 void display( void );
@@ -38,3 +42,8 @@ void mousemove( int x, int y );
 
 // Misc. Functions
 void initOpenGL();
+void GenerateRandomColorScheme();
+void CreateColorVector();
+void ChangeColor();
+bool EqualSchemes( ColorScheme scheme1, ColorScheme scheme2 );
+void SetPointColors();

@@ -3,11 +3,30 @@
 
 using namespace std;
 
-struct Color
+class Color
 {
-	float r;
-	float g;
-	float b;
+	public:
+		Color();
+		Color( float r, float g, float b );
+		bool equals( Color color );
+		float r;
+		float g;
+		float b;
+};
+
+struct ColorScheme 
+{
+	Color black;	// in the set
+	Color color1;
+	Color color2;
+	Color color3;
+	Color color4;
+	Color color5;
+	Color color6;
+	Color color7;
+	Color color8;
+	Color color9;
+	Color color10;
 };
 
 struct ComplexPoint 
@@ -15,12 +34,13 @@ struct ComplexPoint
 	float x;
 	float y;
 	Color color;
+	int schemeIndex;
 };
 
 class Julia 
 {
 	public:
-		vector< ComplexPoint > GetPoints( ComplexPoint seed, int nx, int ny, int maxIters );
+		vector< ComplexPoint > GetPoints( ComplexPoint seed, int nx, int ny, int maxIters, ColorScheme scheme );
 		float GetComplexXMin();
 		float GetComplexXMax();
 		float GetComplexYMin();
@@ -55,7 +75,7 @@ class Mandelbrot
 {
 	public:
 		Mandelbrot();
-		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters, Color colorScheme[7] );
+		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters, ColorScheme scheme );
 		
 		float GetComplexXMin();
 		float GetComplexXMax();
