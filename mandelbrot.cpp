@@ -10,7 +10,7 @@ int main( int argc, char* argv[] )
 	CurrentScheme = ColorSchemes.at(0);
 
 	// get Mandelbrot points
-	MandelbrotPoints = mandelbrot.GetPoints( 1000, 1000, 1000, CurrentScheme );
+	MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
 	vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
 
 	// Initialize glut/openGL
@@ -32,7 +32,6 @@ int main( int argc, char* argv[] )
  ******************************************************************************/
 void display( void )
 {
-	//glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
 
 	float xmin = 0;
@@ -68,7 +67,6 @@ void display( void )
 	{
 		pt = *it;
 		float color[3] = { pt.color.r, pt.color.g, pt.color.b };
-		//cout << pt.x << ", " << pt.y << endl;
 		glColor3fv( color );
 		glBegin( GL_POINTS );
 			glVertex2f( pt.x, pt.y );
@@ -80,8 +78,11 @@ void display( void )
 
 void reshape( int w, int h )
 {
-	ScreenWidth = w;
-	ScreenHeight = h;
+	Reshape = !Reshape;
+	if ( Reshape )
+	{
+		glutReshapeWindow( ScreenWidth, ScreenHeight );
+	}
 
 	float xmin = 0;
 	float xmax = 0;
@@ -108,9 +109,7 @@ void reshape( int w, int h )
 	glLoadIdentity();
 
 	gluOrtho2D( xmin, xmax, ymin, ymax  );
-	//glutReshapeWindow( ScreenWidth, ScreenHeight );
 	glViewport( 0, 0, ScreenWidth, ScreenHeight );
-
 
 	glClear( GL_COLOR_BUFFER_BIT );
 }
@@ -130,7 +129,7 @@ void keyboard( unsigned char key, int x, int y )
 			mandelbrot.SetComplexXMin( mandelbrot.GetComplexXMin() - .05 );
 			mandelbrot.SetComplexYMax( mandelbrot.GetComplexYMax() - .05 );
 			mandelbrot.SetComplexYMin( mandelbrot.GetComplexYMin() - .05 );
-			MandelbrotPoints = mandelbrot.GetPoints( 900, 900, 1000, CurrentScheme );
+			MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
 			break;
 		case Minus:
 			break;

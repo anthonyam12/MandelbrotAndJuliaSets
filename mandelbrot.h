@@ -30,9 +30,10 @@ ColorScheme CurrentScheme;			// Scheme currently being used
 ComplexPoint JuliaSeed;				// Seed for the Julia Set
 bool IsJulia = false;				// Display the Julia set or Mandelbrot Set
 bool Animating = false;				// Are we animating?
+bool Reshape = false;				// Used in preventing reshaping
 
-float ScreenWidth = 900;			// Window's width
-float ScreenHeight = 900;			// Window's height
+float ScreenWidth = 500;			// Window's width
+float ScreenHeight = 500;			// Window's height
 
 // OpenGL Callbacks
 void display( void );
