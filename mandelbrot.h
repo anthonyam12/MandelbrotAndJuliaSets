@@ -8,6 +8,15 @@
 
 using namespace std;
 
+// Structs
+struct MinMax
+{
+	double xmin;
+	double xmax;
+	double ymin;
+	double ymax;
+};
+
 // Constants
 const int Plus = '+';
 const int Minus = '-';
@@ -32,6 +41,11 @@ bool IsJulia = false;				// Display the Julia set or Mandelbrot Set
 bool Animating = false;				// Are we animating?
 bool Reshape = false;				// Used in preventing reshaping
 
+int MandelbrotStepsX = 500;
+int MandelbrotStepsY = 500;
+int JuliaStepsX = 500;
+int JuliaStepsY = 500;
+
 float ScreenWidth = 500;			// Window's width
 float ScreenHeight = 500;			// Window's height
 
@@ -51,4 +65,4 @@ void GenerateRandomColorScheme();
 void CreateColorVector();
 void ChangeColor();
 bool EqualSchemes( ColorScheme scheme1, ColorScheme scheme2 );
-void SetPointColors();
+MinMax GetMinMax();

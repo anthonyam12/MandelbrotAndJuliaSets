@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -14,20 +15,30 @@ class Color
 		float b;
 };
 
-struct ColorScheme 
+class ColorScheme 
 {
-	Color black;	// in the set
-	Color color1;
-	Color color2;
-	Color color3;
-	Color color4;
-	Color color5;
-	Color color6;
-	Color color7;
-	Color color8;
-	Color color9;
-	Color color10;
+	public:
+		ColorScheme();
+		ColorScheme( Color black, Color color1, Color color2, Color color3,
+					 Color color4, Color color5, Color color6, Color color7,
+					 Color color8, Color color9, Color color10);
+		void SetColor( int colorIndex, Color newColor );
+		Color GetColor( int colorIndex );
+		bool Equals( ColorScheme scheme );
+	private:
+		Color black;
+		Color color1;
+		Color color2;
+		Color color3;
+		Color color4;
+		Color color5;
+		Color color6;
+		Color color7;
+		Color color8;
+		Color color9;
+		Color color10;
 };
+
 
 struct ComplexPoint 
 {
@@ -41,7 +52,7 @@ class Julia
 {
 	public:
 		Julia();
-		vector< ComplexPoint > GetPoints( ComplexPoint seed, int nx, int ny, int maxIters, ColorScheme scheme );
+		vector< ComplexPoint > GetPoints( ComplexPoint seed, int nx, int ny, int maxIters );
 		double GetComplexXMin();
 		double GetComplexXMax();
 		double GetComplexYMin();
@@ -75,7 +86,7 @@ class Mandelbrot
 {
 	public:
 		Mandelbrot();
-		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters, ColorScheme scheme );
+		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters );
 		
 		double GetComplexXMin();
 		double GetComplexXMax();
@@ -102,7 +113,7 @@ class Mandelbrot_cu
 	public:
 		Mandelbrot_cu();
 		//void CalcPoint( float *x, float *y, float *r, float *g, float *b, float w, float h );
-		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters, Color colorScheme[7] );
+		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters );
 		
 		double GetComplexXMin();
 		double GetComplexXMax();

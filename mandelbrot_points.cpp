@@ -9,7 +9,7 @@ Mandelbrot::Mandelbrot()
 	this->ComplexYMax = 1.5;
 }
 
-vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter, ColorScheme scheme ) 
+vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter ) 
 {
 	vector< ComplexPoint > points;
 
@@ -29,57 +29,46 @@ vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter, Colo
 			count = MandelbrotSqTransf( z, maxIter );
 			if( count >= maxIter )
 			{
-				z.color = scheme.black;
 				z.schemeIndex = 0;
 			}
 			else if ( count > ( maxIter / 8) ) 
 			{
-				z.color = scheme.color1;
 				z.schemeIndex = 1;
 			}
 			else if ( count > ( maxIter / 10) ) 
 			{
-				z.color = scheme.color2;
 				z.schemeIndex = 2;
 			}
 			else if ( count > ( maxIter / 20) ) 
 			{
-				z.color = scheme.color3;
 				z.schemeIndex = 3;
 			}
 			else if ( count > ( maxIter / 40) ) 
 			{
-				z.color = scheme.color4;
 				z.schemeIndex = 4;
 			}
 			else if ( count > ( maxIter / 100) ) 
 			{
-				z.color = scheme.color5;
 				z.schemeIndex = 5;
 			}
 			else if ( count > (maxIter / 200) )
 			{
-				z.color = scheme.color6;
 				z.schemeIndex = 6;
 			}
 			else if ( count > (maxIter / 400) )
 			{
-				z.color = scheme.color7;
 				z.schemeIndex = 7;
 			}
 			else if ( count > (maxIter / 600) )
 			{
-				z.color = scheme.color8;
 				z.schemeIndex = 8;
 			}
 			else if ( count > (maxIter / 800) )
 			{
-				z.color = scheme.color9;
 				z.schemeIndex = 9;
 			}
 			else 
 			{
-				z.color = scheme.color10;
 				z.schemeIndex = 10;
 			}
 			points.push_back(z);

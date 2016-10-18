@@ -30,6 +30,9 @@ all:    mandelbrot
 color: color.o
 	$(LINK) -o $@ $^
 
+colorscheme: colorscheme.o
+	$(LINK) -o $@ $^
+
 mandelbrot_cuda.o: mandelbrot_cuda.cu
 	$(CU) -o $@ -c $<
 
@@ -44,11 +47,11 @@ mandelbrot_points: mandelbrot_points.o
 
 # remove the cu after this target to compule the cu stuff (need to 
 # remove the other mandelbrot target as well). 
-mandelbrotcu: julia.o mandelbrot_points.o color.o mandelbrot_cuda.o julia_cuda.o
+mandelbrotcu: julia.o mandelbrot_points.o color.o colorscheme.o mandelbrot_cuda.o julia_cuda.o
 	$(LINK) -o $@ $^ mandelbrot.cpp $(GL_LIBS) -L/usr/local/cuda/lib -lcuda -lcudart 
 
 # to build mandelbrot while on a machine without cuda
-mandelbrot: julia.o mandelbrot_points.o color.o 
+mandelbrot: julia.o mandelbrot_points.o color.o colorscheme.o
 	$(LINK) -o $@ $^ mandelbrot.cpp $(GL_LIBS)
 
 # generic C and C++ targets for OpenGL programs consisting of only one file

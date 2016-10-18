@@ -10,7 +10,7 @@ int main( int argc, char* argv[] )
 	CurrentScheme = ColorSchemes.at(0);
 
 	// get Mandelbrot points
-	MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+	MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000 );
 	//vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
 
 	// Initialize glut/openGL
@@ -34,26 +34,9 @@ void display( void )
 {
 	glLoadIdentity();
 
-	double xmin = 0;
-	double xmax = 0;
-	double ymin = 0;
-	double ymax = 0;
+	MinMax mm = GetMinMax();	
 
-	if( !IsJulia )
-	{
-		xmin = mandelbrot.GetComplexXMin();
-		xmax = mandelbrot.GetComplexXMax();
-		ymin = mandelbrot.GetComplexYMin();
-		ymax = mandelbrot.GetComplexYMax();
-	}
-	else 
-	{
-		xmin = julia.GetComplexXMin();
-		xmax = julia.GetComplexXMax();
-		ymin = julia.GetComplexYMin();
-		ymax = julia.GetComplexYMax();
-	}
-	gluOrtho2D( xmin, xmax, ymin, ymax );
+	gluOrtho2D( mm.xmin, mm.xmax, mm.ymin, mm.ymax );
 	glViewport( 0, 0, ScreenWidth, ScreenHeight );
 
 	glClear( GL_COLOR_BUFFER_BIT );	
@@ -65,6 +48,7 @@ void display( void )
 	for( vector<ComplexPoint>::const_iterator it=plotVec.begin(); it < plotVec.end(); it++ )
 	{
 		pt = *it;
+		pt.color = CurrentScheme.GetColor( pt.schemeIndex );
 		float color[3] = { pt.color.r, pt.color.g, pt.color.b };
 		glColor3fv( color );
 		glBegin( GL_POINTS );
@@ -83,31 +67,12 @@ void reshape( int w, int h )
 		glutReshapeWindow( ScreenWidth, ScreenHeight );
 	}
 
-	double xmin = 0;
-	double xmax = 0;
-	double ymin = 0;
-	double ymax = 0;
-
-	if( !IsJulia )
-	{
-		xmin = mandelbrot.GetComplexXMin();
-		xmax = mandelbrot.GetComplexXMax();
-		ymin = mandelbrot.GetComplexYMin();
-		ymax = mandelbrot.GetComplexYMax();
-	}
-	else 
-	{
-		// set x/y min/max based on Julia values 
-		xmin = julia.GetComplexXMin();
-		xmax = julia.GetComplexXMax();
-		ymin = julia.GetComplexYMin();
-		ymax = julia.GetComplexYMax();
-	}
+	MinMax mm = GetMinMax();
 
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
 
-	gluOrtho2D( xmin, xmax, ymin, ymax  );
+	gluOrtho2D( mm.xmin, mm.xmax, mm.ymin, mm.ymax  );
 	glViewport( 0, 0, ScreenWidth, ScreenHeight );
 
 	glClear( GL_COLOR_BUFFER_BIT );
@@ -115,29 +80,9 @@ void reshape( int w, int h )
 
 void keyboard( unsigned char key, int x, int y )
 {
-
-	// might move this inside zoom in/out and pan cases
-	double xmin = 0;
-	double xmax = 0;
-	double ymin = 0;
-	double ymax = 0;
-
-	if( !IsJulia )
-	{
-		xmin = mandelbrot.GetComplexXMin();
-		xmax = mandelbrot.GetComplexXMax();
-		ymin = mandelbrot.GetComplexYMin();
-		ymax = mandelbrot.GetComplexYMax();
-	}
-	else 
-	{
-		xmin = julia.GetComplexXMin();
-		xmax = julia.GetComplexXMax();
-		ymin = julia.GetComplexYMin();
-		ymax = julia.GetComplexYMax();
-	}
-	double xlength = xmax - xmin;
-	double ylength = ymax - ymin;
+	MinMax mm = GetMinMax();
+	double xlength = mm.xmax - mm.xmin;
+	double ylength = mm.ymax - mm.ymin;
 
 	// +/- keys for zoom 
 	// J - toggle between Mandelbrot and Julia Sets at Current Cursor position
@@ -152,55 +97,71 @@ void keyboard( unsigned char key, int x, int y )
 			// TODO: there is probably a more efficient way to handle the IsJulia stuff
 			if ( !IsJulia )
 			{
-				mandelbrot.SetComplexXMax( xmax - ( xlength*.1 ) );
-				mandelbrot.SetComplexXMin( xmin + ( xlength*.1 ) );
-				mandelbrot.SetComplexYMax( ymax - ( ylength*.1 ) );
-				mandelbrot.SetComplexYMin( ymin + ( ylength*.1 ) );
-				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+				MandelbrotStepsX = MandelbrotStepsX > 1200 ? MandelbrotStepsX : MandelbrotStepsX*1.1;
+				MandelbrotStepsY = MandelbrotStepsY > 1200 ? MandelbrotStepsY : MandelbrotStepsY*1.1;
+				mandelbrot.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
+				mandelbrot.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
+				mandelbrot.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
+				mandelbrot.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
 			}
 			else 
 			{
-				julia.SetComplexXMax( xmax - ( xlength*.1 ) );
-				julia.SetComplexXMin( xmin + ( xlength*.1 ) );
-				julia.SetComplexYMax( ymax - ( ylength*.1 ) );
-				julia.SetComplexYMin( ymin + ( ylength*.1 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+				JuliaStepsX = JuliaStepsX > 1200 ? JuliaStepsX : JuliaStepsX * 1.1;
+				JuliaStepsY = JuliaStepsY > 1200 ? JuliaStepsY : JuliaStepsY * 1.1;
+				julia.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
+				julia.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
+				julia.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
+				julia.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
 			}
 			break;
 		case Minus:
 			// TODO: for zoom out we need to add on more than 10% because of how precents work, obvs
 			if ( !IsJulia )
 			{
-				mandelbrot.SetComplexXMax( xmax + ( xlength*.1 ) );
-				mandelbrot.SetComplexXMin( xmin - ( xlength*.1 ) );
-				mandelbrot.SetComplexYMax( ymax + ( ylength*.1 ) );
-				mandelbrot.SetComplexYMin( ymin - ( ylength*.1 ) );
-				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+				MandelbrotStepsX = MandelbrotStepsX < 500 
+								   ? MandelbrotStepsX 
+								   : MandelbrotStepsX/1.1;
+				MandelbrotStepsY = MandelbrotStepsY < 500 
+								   ? MandelbrotStepsY 
+								   : MandelbrotStepsY/1.1;
+				mandelbrot.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
+				mandelbrot.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
+				mandelbrot.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
+				mandelbrot.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
 			}
 			else 
 			{
-				julia.SetComplexXMax( xmax + ( xlength*.1 ) );
-				julia.SetComplexXMin( xmin - ( xlength*.1 ) );
-				julia.SetComplexYMax( ymax + ( ylength*.1 ) );
-				julia.SetComplexYMin( ymin - ( ylength*.1 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+				JuliaStepsX = JuliaStepsX < 500 ? JuliaStepsX : JuliaStepsX / 1.1;
+				JuliaStepsY = JuliaStepsY < 500 ? JuliaStepsY : JuliaStepsY / 1.1;
+				julia.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
+				julia.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
+				julia.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
+				julia.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
 			}
 			break;
 		case J:
 			// Calc/Open Julia Set
+			julia.SetComplexXMax( 2 );
+			julia.SetComplexXMin( -2 );
+			julia.SetComplexYMax( 2 );
+			julia.SetComplexYMin( -2 );
 			if ( !IsJulia )
 			{
-				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
 			}
+			JuliaStepsX = 500;
+			JuliaStepsY = 500;
 			IsJulia = !IsJulia;
 			break;
 		case C:
 			ChangeColor();
-			SetPointColors();
 			break;
 		case R:
 			GenerateRandomColorScheme();
-			SetPointColors();
 			break;
 		case A:
 			if ( !Animating )
@@ -216,90 +177,69 @@ void keyboard( unsigned char key, int x, int y )
 	glutPostRedisplay();
 }
 
-// TODO: we could make a struct to strore the xmin, xmax, ymin, ymax and a function
-// that will return that struct. This would remove all of this code reuse pertaining to
-// xmin/max and ymin/max
 void special( int key, int x, int y )
 {
-	double xmin = 0;
-	double xmax = 0;
-	double ymin = 0;
-	double ymax = 0;
-
-	if( !IsJulia )
-	{
-		xmin = mandelbrot.GetComplexXMin();
-		xmax = mandelbrot.GetComplexXMax();
-		ymin = mandelbrot.GetComplexYMin();
-		ymax = mandelbrot.GetComplexYMax();
-	}
-	else 
-	{
-		xmin = julia.GetComplexXMin();
-		xmax = julia.GetComplexXMax();
-		ymin = julia.GetComplexYMin();
-		ymax = julia.GetComplexYMax();
-	}
+	MinMax mm = GetMinMax();
 	
-	double xlength = xmax - xmin;
-	double ylength = ymax - ymin;
+	double xlength = mm.xmax - mm.xmin;
+	double ylength = mm.ymax - mm.ymin;
 
 	switch( key )
 	{
 		case GLUT_KEY_RIGHT:
 			if ( !IsJulia )
 			{
-				mandelbrot.SetComplexXMin( xmin + ( xlength*.3 ) );
-				mandelbrot.SetComplexXMax( xmax + ( xlength*.3 ) );			
-				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+				mandelbrot.SetComplexXMin( mm.xmin + ( xlength*.3 ) );
+				mandelbrot.SetComplexXMax( mm.xmax + ( xlength*.3 ) );			
+				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000 );
 			}
 			else 
 			{	
-				julia.SetComplexXMin( xmin + ( xlength*.3 ) );
-				julia.SetComplexXMax( xmax + ( xlength*.3 ) );			
-				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+				julia.SetComplexXMin( mm.xmin + ( xlength*.3 ) );
+				julia.SetComplexXMax( mm.xmax + ( xlength*.3 ) );			
+				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000 );
 			}
 			break;
 		case GLUT_KEY_LEFT:
 			if ( !IsJulia )
 			{
-				mandelbrot.SetComplexXMin( xmin - ( xlength*.3 ) );
-				mandelbrot.SetComplexXMax( xmax - ( xlength*.3 ) );
-				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+				mandelbrot.SetComplexXMin( mm.xmin - ( xlength*.3 ) );
+				mandelbrot.SetComplexXMax( mm.xmax - ( xlength*.3 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000 );
 			} 
 			else 
 			{	
-				julia.SetComplexXMin( xmin - ( xlength*.3 ) );
-				julia.SetComplexXMax( xmax - ( xlength*.3 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+				julia.SetComplexXMin( mm.xmin - ( xlength*.3 ) );
+				julia.SetComplexXMax( mm.xmax - ( xlength*.3 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000 );
 			}
 			break;
 		case GLUT_KEY_UP:
 			if ( !IsJulia )
 			{
-				mandelbrot.SetComplexYMin( ymin + ( ylength*.3 ) );
-				mandelbrot.SetComplexYMax( ymax + ( ylength*.3 ) );
-				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+				mandelbrot.SetComplexYMin( mm.ymin + ( ylength*.3 ) );
+				mandelbrot.SetComplexYMax( mm.ymax + ( ylength*.3 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000 );
 			}
 			else 
 			{
-				julia.SetComplexYMin( ymin + ( ylength*.3 ) );
-				julia.SetComplexYMax( ymax + ( ylength*.3 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+				julia.SetComplexYMin( mm.ymin + ( ylength*.3 ) );
+				julia.SetComplexYMax( mm.ymax + ( ylength*.3 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000 );
 			}
 			break;
 		case GLUT_KEY_DOWN:
 			if ( !IsJulia )
 			{
-				mandelbrot.SetComplexYMin( ymin - ( ylength*.3 ) );
-				mandelbrot.SetComplexYMax( ymax - ( ylength*.3 ) );
-				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000, CurrentScheme );
+				mandelbrot.SetComplexYMin( mm.ymin - ( ylength*.3 ) );
+				mandelbrot.SetComplexYMax( mm.ymax - ( ylength*.3 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000 );
 			}
 			else 
 			{
-				julia.SetComplexYMin( ymin - ( ylength*.3 ) );
-				julia.SetComplexYMax( ymax - ( ylength*.3 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000, CurrentScheme );
+				julia.SetComplexYMin( mm.ymin - ( ylength*.3 ) );
+				julia.SetComplexYMax( mm.ymax - ( ylength*.3 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000 );
 			}
 			break;
 	}
@@ -316,93 +256,35 @@ void mousemove( int x, int y )
 {
 	// invert y
 	y = ScreenHeight - y;
-
-
-	double xmin = 0;
-	double xmax = 0;
-	double ymin = 0;
-	double ymax = 0;
+	MinMax mm = GetMinMax();
 
 	if ( !IsJulia ) 
 	{
 		// track the mouse position to open Julia Set
-		xmin = mandelbrot.GetComplexXMin();
-		xmax = mandelbrot.GetComplexXMax();
-		ymin = mandelbrot.GetComplexYMin();
-		ymax = mandelbrot.GetComplexYMax();
+		double gridStepsX = ( ( fabs(mm.xmax) + fabs(mm.xmin) ) / ScreenWidth );
+		double plotx = mm.xmin + ( x * gridStepsX );
 
-
-		double gridStepsX = ( ( fabs(xmax) + fabs(xmin) ) / ScreenWidth );
-		double plotx = xmin + ( x * gridStepsX );
-
-		double gridStepsY = ( ( fabs(ymax) + fabs(ymin) ) / ScreenHeight );
-		double ploty = ymin + ( y * gridStepsY );
+		double gridStepsY = ( ( fabs(mm.ymax) + fabs(mm.ymin) ) / ScreenHeight );
+		double ploty = mm.ymin + ( y * gridStepsY );
 
 		JuliaSeed.x = plotx;
 		JuliaSeed.y = ploty;
 	}
 	else 
 	{
-		// Not sure what to do here
-		xmin = julia.GetComplexXMin();
-		xmax = julia.GetComplexXMax();
-		ymin = julia.GetComplexYMin();
-		ymax = julia.GetComplexYMax();
-
-		double gridStepsX = ( ( fabs(xmax) + fabs(xmin) ) / ScreenWidth );
-		double gridStepsY = ( ( fabs(ymax) + fabs(ymin) ) / ScreenHeight );
 		
-		double plotx = xmin + ( x * gridStepsX );
-		double ploty = ymin + ( y * gridStepsY );
-
-		//JuliaSeed.x = plotx;
-		//JuliaSeed.y = ploty;
 	}
 	//cout << JuliaSeed.x << ", " << JuliaSeed.y << endl;
 }
 
 void update( int value )
 {
-	if ( Animating ) 
-	{
-		CurrentScheme.black = CurrentScheme.color10;
-
-		CurrentScheme.color1 = CurrentScheme.color2;
-		CurrentScheme.color2 = CurrentScheme.color3;
-		CurrentScheme.color3 = CurrentScheme.color4;
-		CurrentScheme.color4 = CurrentScheme.color5;
-		CurrentScheme.color5 = CurrentScheme.color6;
-		CurrentScheme.color6 = CurrentScheme.color7;
-		CurrentScheme.color7 = CurrentScheme.color8;
-		CurrentScheme.color8 = CurrentScheme.color9;
-		CurrentScheme.color9 = CurrentScheme.color10;
-		CurrentScheme.color10 = CurrentScheme.black;
-		glutPostRedisplay();
-	}
-	SetPointColors();
-	
 	glutTimerFunc( 100, update, 0 );
 }
 
 void idle() 
 {
-	if ( Animating ) 
-	{
-		CurrentScheme.black = CurrentScheme.color10;
-
-		CurrentScheme.color1 = CurrentScheme.color2;
-		CurrentScheme.color2 = CurrentScheme.color3;
-		CurrentScheme.color3 = CurrentScheme.color4;
-		CurrentScheme.color4 = CurrentScheme.color5;
-		CurrentScheme.color5 = CurrentScheme.color6;
-		CurrentScheme.color6 = CurrentScheme.color7;
-		CurrentScheme.color7 = CurrentScheme.color8;
-		CurrentScheme.color8 = CurrentScheme.color9;
-		CurrentScheme.color9 = CurrentScheme.color10;
-		CurrentScheme.color10 = CurrentScheme.black;
-		glutPostRedisplay();
-	}
-	SetPointColors();
+	
 }
 
 /*******************************************************************************
@@ -444,51 +326,18 @@ void GenerateRandomColorScheme()
 	float b;
 
 	ColorScheme randomScheme;
-	for( int i = 0; i < 11; i++ ) 
+	Color black( 0, 0, 0 );
+	randomScheme.SetColor( 0, black );
+
+	// set colors 1 through 10
+	for( int i = 1; i < 11; i++ ) 
 	{
 		r = (float)(rand()) / (float)(RAND_MAX);
 		g = (float)(rand()) / (float)(RAND_MAX);
 		b = (float)(rand()) / (float)(RAND_MAX);
-		switch( i )
-		{
-			case 0:
-				// TODO:
-				// keep these black or change to random color??
-				// black looks more right.
-				randomScheme.black = Color( 0, 0, 0 );
-				break;
-			case 1:
-				randomScheme.color1 = Color( r, g, b );
-				break;
-			case 2:
-				randomScheme.color2 = Color( r, g, b );
-				break;
-			case 3:
-				randomScheme.color3 = Color( r, g, b );
-				break;
-			case 4:
-				randomScheme.color4 = Color( r, g, b );
-				break;
-			case 5:
-				randomScheme.color5 = Color( r, g, b );
-				break;
-			case 6:
-				randomScheme.color6 = Color( r, g, b );
-				break;
-			case 7:
-				randomScheme.color7 = Color( r, g, b );
-				break;
-			case 8:
-				randomScheme.color8 = Color( r, g, b );
-				break;
-			case 9:
-				randomScheme.color9 = Color( r, g, b );
-				break;
-			case 10:
-				randomScheme.color10 = Color( r, g, b );
-				break;
-		}
+		randomScheme.SetColor( i, Color( r, g, b ) );
 	}
+
 	ColorSchemes.push_back( randomScheme );
 	CurrentScheme = randomScheme;
 }
@@ -496,30 +345,30 @@ void GenerateRandomColorScheme()
 void CreateColorVector() 
 {
 	ColorScheme scheme;
-	scheme.black = Color( 0, 0, 0 );
+	scheme.SetColor( 0, Color( 0, 0, 0 ) );
 
-	scheme.color1 = Color( 1, .5, 0 );
-	scheme.color2 = Color( 1, 0, 0 );
-	scheme.color3 = Color( 0, 0, .5 );
-	scheme.color4 = Color( 1, 1, 0 );
-	scheme.color5 = Color( 0, .3, 0 );
-	scheme.color6 = Color( 0, .3, .3 );
-	scheme.color7 = Color( 0, .5, .5 );
-	scheme.color8 = Color( 0, .7, .7 );
-	scheme.color9 = Color( 0, .9, .9 );
-	scheme.color10 = Color( 0, 1, 1 );
+	scheme.SetColor( 1, Color( 1, .5, 0 ) );
+	scheme.SetColor( 2, Color( 1, 0, 0 ) );
+	scheme.SetColor( 3, Color( 0, 0, .5 ) );
+	scheme.SetColor( 4, Color( 1, 1, 0 ) );
+	scheme.SetColor( 5, Color( 0, .3, 0 ) );
+	scheme.SetColor( 6, Color( 0, .3, .3 ) ) ;
+	scheme.SetColor( 7, Color( 0, .5, .5 ) );
+	scheme.SetColor( 8, Color( 0, .7, .7 ) ) ;
+	scheme.SetColor( 9, Color( 0, .9, .9 ) );
+	scheme.SetColor( 10, Color( 0, 1, 1 ) );
 	ColorSchemes.push_back( scheme );
 
-	scheme.color1 = Color( 0, .5, 1 );
-	scheme.color2 = Color( 0, 1, .7 );
-	scheme.color3 = Color( .7, 0, 0);
-	scheme.color4 = Color( .5, .5, 0 );
-	scheme.color5 = Color( 1, 0, .5 );
-	scheme.color6 = Color( .3, .3, .3 );
-	scheme.color7 = Color( .5, .5, .3 );
-	scheme.color8 = Color( .7, .7, .3 );
-	scheme.color9 = Color( .9, .9, .3 );
-	scheme.color10 = Color( 1, 1, 1 );
+	scheme.SetColor( 1, Color( 0, .5, 1 ) );
+	scheme.SetColor( 2, Color( 0, 1, .7 ) );
+	scheme.SetColor( 3, Color( .7, 0, 0) );
+	scheme.SetColor( 4, Color( .5, .5, 0 ) );
+	scheme.SetColor( 5, Color( 1, 0, .5 ) );
+	scheme.SetColor( 6, Color( .3, .3, .3 ) );
+	scheme.SetColor( 7, Color( .5, .5, .3 ) );
+	scheme.SetColor( 8, Color( .7, .7, .3 ) );
+	scheme.SetColor( 9, Color( .9, .9, .3 ) );
+	scheme.SetColor( 10, Color( 1, 1, 1 ) );
 	ColorSchemes.push_back( scheme );
 }
 
@@ -529,7 +378,7 @@ void ChangeColor()
 	ColorScheme newScheme = ColorSchemes.at(index);
 	
 	// Make sure we don't get the same color
-	while ( EqualSchemes( newScheme, CurrentScheme ) ) 
+	while ( CurrentScheme.Equals( newScheme ) ) 
 	{
 		index = rand() % ColorSchemes.size();
 		newScheme = ColorSchemes.at(index);
@@ -537,63 +386,34 @@ void ChangeColor()
 	CurrentScheme = newScheme;
 }
 
-// Alternatively could make ColorScheme a class with an equals method.
-// The alternative is probably better
-bool EqualSchemes( ColorScheme scheme1, ColorScheme scheme2 )
+MinMax GetMinMax()
 {
-	return scheme1.color1.equals( scheme2.color1 ) &&
-		   scheme1.color2.equals( scheme2.color2 ) &&
-		   scheme1.color3.equals( scheme2.color3 ) &&
-		   scheme1.color4.equals( scheme2.color4 ) &&
-		   scheme1.color5.equals( scheme2.color5 ) &&
-		   scheme1.color6.equals( scheme2.color6 ) &&
-		   scheme1.color7.equals( scheme2.color7 ) &&
-		   scheme1.color8.equals( scheme2.color8 ) &&
-		   scheme1.color9.equals( scheme2.color9 ) &&
-		   scheme1.color10.equals( scheme2.color10 );
-}
+	double xmin = 0;
+	double xmax = 0;
+	double ymin = 0;
+	double ymax = 0;
 
-void SetPointColors()
-{
-	vector< ComplexPoint > &pointVec = IsJulia ? JuliaPoints : MandelbrotPoints;
-	for( int i = 0; i < pointVec.size(); i++ ) 
+	if( !IsJulia )
 	{
-		ComplexPoint &pt = pointVec.at(i);
-		switch( pt.schemeIndex )
-		{
-			case 0:
-				pt.color = CurrentScheme.black;
-				break;
-			case 1:
-				pt.color = CurrentScheme.color1;
-				break;
-			case 2:
-				pt.color = CurrentScheme.color2;
-				break;
-			case 3:
-				pt.color = CurrentScheme.color3;
-				break;
-			case 4:
-				pt.color = CurrentScheme.color4;
-				break;
-			case 5:
-				pt.color = CurrentScheme.color5;
-				break;
-			case 6:
-				pt.color = CurrentScheme.color6;
-				break;
-			case 7:
-				pt.color = CurrentScheme.color7;
-				break;
-			case 8:
-				pt.color = CurrentScheme.color8;
-				break;
-			case 9:
-				pt.color = CurrentScheme.color9;
-				break;
-			case 10:
-				pt.color = CurrentScheme.color10;
-				break;
-		}
+		xmin = mandelbrot.GetComplexXMin();
+		xmax = mandelbrot.GetComplexXMax();
+		ymin = mandelbrot.GetComplexYMin();
+		ymax = mandelbrot.GetComplexYMax();
 	}
+	else 
+	{
+		xmin = julia.GetComplexXMin();
+		xmax = julia.GetComplexXMax();
+		ymin = julia.GetComplexYMin();
+		ymax = julia.GetComplexYMax();
+	}
+
+	MinMax minMax;
+
+	minMax.xmin = xmin;
+	minMax.xmax = xmax;
+	minMax.ymin = ymin;
+	minMax.ymax = ymax;
+
+	return minMax;
 }

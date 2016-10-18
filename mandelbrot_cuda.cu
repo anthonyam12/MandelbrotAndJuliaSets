@@ -19,7 +19,7 @@ __global__ void CalcPoint( float *x, float *y, float *r, float *g, float *b, int
 	}
 }
 
-vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter, Color colorScheme[7] ) 
+vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter ) 
 {
 	//TODO: Get the colors for the points from colorScheme[i] rather than setting to the book color
 	//TODO: for animation we will go through our stored colored schemes and set the color in the 
