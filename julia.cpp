@@ -31,39 +31,39 @@ vector< ComplexPoint > Julia::GetPoints( ComplexPoint seed, int nx, int ny, int 
 			}
 			else if ( count > ( maxIter / 8) ) 
 			{
-				z.schemeIndex = 1;
+				z.schemeIndex = 2;
 			}
 			else if ( count > ( maxIter / 10) ) 
 			{
-				z.schemeIndex = 2;
+				z.schemeIndex = 3;
 			}
 			else if ( count > ( maxIter / 20) ) 
 			{
-				z.schemeIndex = 3;
+				z.schemeIndex = 4;
 			}
 			else if ( count > ( maxIter / 40) ) 
 			{
-				z.schemeIndex = 4;
+				z.schemeIndex = 5;
 			}
 			else if ( count > ( maxIter / 100) ) 
 			{
-				z.schemeIndex = 5;
+				z.schemeIndex = 6;
 			}
 			else if ( count > (maxIter / 200) )
 			{
-				z.schemeIndex = 6;
+				z.schemeIndex = 7;
 			}
 			else if ( count > (maxIter / 400) )
 			{
-				z.schemeIndex = 7;
+				z.schemeIndex = 8;
 			}
 			else if ( count > (maxIter / 600) )
 			{
-				z.schemeIndex = 8;
+				z.schemeIndex = 9;
 			}
 			else if ( count > (maxIter / 800) )
 			{
-				z.schemeIndex = 9;
+				z.schemeIndex = 1;
 			}
 			else 
 			{
