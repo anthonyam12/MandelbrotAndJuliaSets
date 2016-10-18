@@ -13,20 +13,21 @@ __global__ void CalcPoint( float *x, float *y, int *scheme, int nx, int ny, int 
 	int index = threadIdx.x + blockIdx.x * blockDim.x;
 	if ( index < nx ) 
 	{
-		for( int i = 0; i < ny; i++ )
+		for( int i = index*ny; i < (index+1)*ny; i++ )
 		{
-			float zx0 = x[index];
-			float zy0 = y[index + i];
+			double zx0 = x[index];
+			double zy0 = y[i];
 
-			float zx = x[index];
-			float zy = y[index + i];
+			double zx = x[index];
+			double zy = y[i];
 
 			int count = 0;
+			
 			while( ( zx*zx + zy*zy <= 4.0 ) && ( count < maxIter ) )
 			{
 				// complex square
-				float new_zx = zx*zx - zy*zy;
-				float new_zy = 2 * zx * zy;
+				double new_zx = zx*zx - zy*zy;
+				double new_zy = 2 * zx * zy;
 				zx = new_zx;
 				zy = new_zy;
 
@@ -37,51 +38,51 @@ __global__ void CalcPoint( float *x, float *y, int *scheme, int nx, int ny, int 
 				// incr count
 				count++;
 			}
-
+		
 			// set color
 			if( count >= maxIter )
 			{
-				scheme[index + i] = 0;
+				scheme[i] = 0;
 			}
 			else if ( count > ( maxIter / 8) ) 
 			{
-				scheme[index + i] = 2;
+				scheme[i] = 2;
 			}
 			else if ( count > ( maxIter / 10) ) 
 			{
-				scheme[index + i] = 3;
+				scheme[i] = 3;
 			}
 			else if ( count > ( maxIter / 20) ) 
 			{
-				scheme[index + i] = 4;
+				scheme[i] = 4;
 			}
 			else if ( count > ( maxIter / 40) ) 
 			{
-				scheme[index + i] = 5;
+				scheme[i] = 5;
 			}
 			else if ( count > ( maxIter / 100) ) 
 			{
-				scheme[index + i] = 6;
+				scheme[i] = 6;
 			}
 			else if ( count > (maxIter / 200) )
 			{
-				scheme[index + i] = 7;
+				scheme[i] = 7;
 			}
 			else if ( count > (maxIter / 400) )
 			{
-				scheme[index + i] = 8;
+				scheme[i] = 8;
 			}
 			else if ( count > (maxIter / 600) )
 			{
-				scheme[index + i] = 9;
+				scheme[i] = 9;
 			}
 			else if ( count > (maxIter / 800) )
 			{
-				scheme[index + i] = 1;
+				scheme[i] = 1;
 			}
 			else 
 			{
-				scheme[index + i] = 10;
+				scheme[i] = 10;
 			}
 		}
 	}
@@ -91,17 +92,15 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter )
 {
 	vector< ComplexPoint > points;
 
-	int size_nx = nx * sizeof( float );
-	int size_nynx = ( nx*ny ) * sizeof( float );
+	int size_nx = nx * sizeof( double );
+	int size_nynx = ( nx*ny ) * sizeof( double );
 	int size_sch = ( nx*ny ) * sizeof( int );	
 
-	float *x = ( float * )malloc(size_nx);
-	float *y = ( float * )malloc(size_nynx);
+	double *x = ( double * )malloc(size_nx);
+	double *y = ( double * )malloc(size_nynx);
 	int *scheme = ( int *)malloc(size_sch);
 	
-	// fill arrays with points before passing
-	ComplexPoint z, zIncr;
-	
+	// fill arrays with points before passing	
 	ComplexWidth = ComplexXMax - ComplexXMin;
 	ComplexHeight = ComplexYMax - ComplexYMin;
 
@@ -112,11 +111,13 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter )
 	{
 		// get and set complex x value
 		x[i] = ComplexXMin + ( zIncr.x * i );
-		for( int j = 0; j < ny; j++ )
+		int multiplier = 0;
+		for( int j = i*ny; j < (i+1)*ny; j++ )
 		{
 			// get and set complex y value (and default scheme)
-			y[j+i] = ComplexYMin + ( zIncr.y * j);
+			y[j] = ComplexYMin + ( zIncr.y * multiplier );
 			scheme[j] = 0;
+			multiplier++;
 		}
 	}
 
@@ -144,11 +145,11 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter )
 	for( int i = 0; i < nx; i++ )
 	{
 		z.x = x[i];
-		for( int j = 0; j < ny; j++ )
+		for( int j = i; j < (i+1)*ny; j++ )
 		{
-			z.y = y[i + j];
-			z.schemeIndex = scheme[i + j];
-			points.push_back(z);
+			z.y = y[j];
+			z.schemeIndex = scheme[j];
+			gpupoints.push_back(z);
 		}
 	}
 	

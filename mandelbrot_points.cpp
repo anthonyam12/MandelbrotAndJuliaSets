@@ -11,7 +11,7 @@ Mandelbrot::Mandelbrot()
 
 vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter ) 
 {
-	vector< ComplexPoint > points;
+	vector< ComplexPoint > points, gpupoints;
 
 	ComplexPoint z, zIncr;
 	int count = 0;
