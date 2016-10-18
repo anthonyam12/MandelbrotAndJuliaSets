@@ -10,9 +10,30 @@ int main( int argc, char* argv[] )
 	CurrentScheme = ColorSchemes.at(0);
 
 	// get Mandelbrot points
-	MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000 );
-	//vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000, NULL);
+	MandelbrotPoints = mandelbrot.GetPoints( 1000, 1000, 1000 );
+	vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000);
+	MandelbrotPoints = test;
 
+
+	for (int i = 0; i < MandelbrotPoints.size(); i++)
+	{
+		ComplexPoint pt = MandelbrotPoints.at(i);
+		ComplexPoint gpu = test.at(i);
+		cout << "CPU: (" << pt.x << ", " << pt.y << ") GPU: (" << gpu.x << ", " << gpu.y << ")" << endl;
+		cout << pt.schemeIndex << ", " << gpu.schemeIndex << endl;
+	}
+
+	/*
+	cout << test.size() << ", " << MandelbrotPoints.size() << endl;
+	int x;
+	cin >> x;
+	for( int i = 0; i < MandelbrotPoints.size(); i++ )
+	{
+		ComplexPoint cpu = MandelbrotPoints.at(i);
+		ComplexPoint gpu = test.at(i);
+		cout << gpu.y << ", " << cpu.y << endl;
+	}
+*/
 	// Initialize glut/openGL
 	glutInit( &argc, argv );
 	initOpenGL();
@@ -49,9 +70,9 @@ void display( void )
 	for( int i = 0; i < plotVec.size();  i++ )
 	{
 		pt = plotVec.at(i);
-		pt.color = CurrentScheme.GetColor( pt.schemeIndex );
-		float color[3] = { pt.color.r, pt.color.g, pt.color.b };
-		glColor3fv( color );
+		Color color = CurrentScheme.GetColor( pt.schemeIndex );
+		float colorv[3] = { color.r, color.g, color.b };
+		glColor3fv( colorv );
 		glVertex2f( pt.x, pt.y );
 	}	
 	glEnd();

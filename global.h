@@ -44,7 +44,6 @@ struct ComplexPoint
 {
 	double x;
 	double y;
-	Color color;
 	int schemeIndex;
 };
 

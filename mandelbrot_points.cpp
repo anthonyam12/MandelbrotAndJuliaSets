@@ -22,10 +22,14 @@ vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter )
 	zIncr.x = ComplexWidth / double( nx );
 	zIncr.y = ComplexHeight / double( ny );
 
-	for( z.x = ComplexXMin; z.x < ComplexXMax; z.x += zIncr.x )
+	//for( z.x = ComplexXMin; z.x < ComplexXMax; z.x += zIncr.x )
+	for( int i = 0; i < nx; i++ )
 	{
-		for( z.y = ComplexYMin; z.y < ComplexYMax; z.y += zIncr.y ) 
+		z.x = ComplexXMin + ( zIncr.x * i );
+		//for( z.y = ComplexYMin; z.y < ComplexYMax; z.y += zIncr.y ) 
+		for( int j = 0; j < ny; j++ )
 		{
+			z.y = ComplexYMin + ( zIncr.y * j );
 			count = MandelbrotSqTransf( z, maxIter );
 			if( count >= maxIter )
 			{
