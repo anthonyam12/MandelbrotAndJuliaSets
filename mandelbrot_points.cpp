@@ -31,6 +31,7 @@ vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter )
 		{
 			z.y = ComplexYMin + ( zIncr.y * j );
 			count = MandelbrotSqTransf( z, maxIter );
+
 			if( count >= maxIter )
 			{
 				z.schemeIndex = 0;

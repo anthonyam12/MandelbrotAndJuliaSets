@@ -97,7 +97,7 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter )
 
 	float *x = ( float * )malloc(size_nx);
 	float *y = ( float * )malloc(size_nynx);
-	int *scheme = ( int *)malloc(size_nynx);
+	int *scheme = ( int *)malloc(size_sch);
 	
 	// fill arrays with points before passing
 	ComplexPoint z, zIncr;

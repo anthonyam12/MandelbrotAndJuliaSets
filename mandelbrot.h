@@ -32,7 +32,7 @@ vector<ComplexPoint> JuliaPoints;
 
 Julia julia;						// Class to get Julia points
 Mandelbrot mandelbrot;				// Class to get Mandebrot points
-Mandelbrot_cu mandelbrotCu;			// Mandelbrot calculations on the GPU
+//Mandelbrot_cu mandelbrotCu;			// Mandelbrot calculations on the GPU
 
 vector< ColorScheme > ColorSchemes;	// Colors for the points
 ColorScheme CurrentScheme;			// Scheme currently being used

@@ -11,10 +11,10 @@ int main( int argc, char* argv[] )
 
 	// get Mandelbrot points
 	MandelbrotPoints = mandelbrot.GetPoints( 1000, 1000, 1000 );
-	vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000);
-	MandelbrotPoints = test;
+	//vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000);
+	//MandelbrotPoints = test;
 
-
+/*
 	for (int i = 0; i < MandelbrotPoints.size(); i++)
 	{
 		ComplexPoint pt = MandelbrotPoints.at(i);
@@ -22,7 +22,7 @@ int main( int argc, char* argv[] )
 		cout << "CPU: (" << pt.x << ", " << pt.y << ") GPU: (" << gpu.x << ", " << gpu.y << ")" << endl;
 		cout << pt.schemeIndex << ", " << gpu.schemeIndex << endl;
 	}
-
+*/
 	/*
 	cout << test.size() << ", " << MandelbrotPoints.size() << endl;
 	int x;
