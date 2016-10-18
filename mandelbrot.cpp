@@ -291,7 +291,7 @@ void update( int value )
 		}
 		glutPostRedisplay();
 	}
-	glutTimerFunc( 100, update, 0 );
+	glutTimerFunc( 200, update, 0 );
 }
 
 /*******************************************************************************
@@ -316,7 +316,7 @@ void initOpenGL( void )
 	glutPassiveMotionFunc( mousemove );
 	glutSpecialFunc( special );
 
-	glutTimerFunc( 100, update, 0 );
+	glutTimerFunc( 200, update, 0 );
 }
 
 // TODO:
