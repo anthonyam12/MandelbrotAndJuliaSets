@@ -45,16 +45,16 @@ void display( void )
 	vector<ComplexPoint> plotVec = IsJulia ? JuliaPoints : MandelbrotPoints;
 
 	ComplexPoint pt;
-	for( vector<ComplexPoint>::const_iterator it=plotVec.begin(); it < plotVec.end(); it++ )
+	glBegin( GL_POINTS );
+	for( int i = 0; i < plotVec.size();  i++ )
 	{
-		pt = *it;
+		pt = plotVec.at(i);
 		pt.color = CurrentScheme.GetColor( pt.schemeIndex );
 		float color[3] = { pt.color.r, pt.color.g, pt.color.b };
 		glColor3fv( color );
-		glBegin( GL_POINTS );
-			glVertex2f( pt.x, pt.y );
-		glEnd();
-	}
+		glVertex2f( pt.x, pt.y );
+	}	
+	glEnd();
 
 	glFlush();
 }
@@ -93,7 +93,6 @@ void keyboard( unsigned char key, int x, int y )
 	switch ( key ) 
 	{
 		case Plus:
-			// TODO: should probably replace the params to GetPoints to screenheight and width
 			// TODO: there is probably a more efficient way to handle the IsJulia stuff
 			if ( !IsJulia )
 			{
@@ -164,11 +163,15 @@ void keyboard( unsigned char key, int x, int y )
 			GenerateRandomColorScheme();
 			break;
 		case A:
+			Animating = !Animating;
 			if ( !Animating )
 			{
-				CurrentScheme = ColorSchemes.at(0);
+				CurrentScheme = BeforeAnimating;
 			}
-			Animating = !Animating;
+			else 
+			{
+				BeforeAnimating = CurrentScheme;
+			}
 			break;
 		case EscapeKey:
 			exit( 0 );
@@ -279,12 +282,16 @@ void mousemove( int x, int y )
 
 void update( int value )
 {
-	glutTimerFunc( 100, update, 0 );
-}
-
-void idle() 
-{
-	
+	if( Animating )
+	{
+		ColorScheme constScheme = CurrentScheme;
+		for( int i = 0; i < 11; i++ )
+		{
+			CurrentScheme.SetColor( i, constScheme.GetColor( ( i + 10 ) % 11 ) );
+		}
+		glutPostRedisplay();
+	}
+	glutTimerFunc( 250, update, 0 );
 }
 
 /*******************************************************************************
@@ -309,8 +316,7 @@ void initOpenGL( void )
 	glutPassiveMotionFunc( mousemove );
 	glutSpecialFunc( special );
 
-	//glutTimerFunc( 100, update, 0 );
-	//glutIdleFunc( idle );
+	glutTimerFunc( 250, update, 0 );
 }
 
 // TODO:

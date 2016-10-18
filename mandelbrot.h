@@ -36,6 +36,7 @@ Mandelbrot mandelbrot;				// Class to get Mandebrot points
 
 vector< ColorScheme > ColorSchemes;	// Colors for the points
 ColorScheme CurrentScheme;			// Scheme currently being used
+ColorScheme BeforeAnimating;		// Used to reset after animation
 ComplexPoint JuliaSeed;				// Seed for the Julia Set
 bool IsJulia = false;				// Display the Julia set or Mandelbrot Set
 bool Animating = false;				// Are we animating?
@@ -57,7 +58,6 @@ void special( int key, int x, int y );
 void mouseclick( int button, int state, int x, int y );
 void mousemove( int x, int y );
 void update( int value );
-void idle();
 
 // Misc. Functions
 void initOpenGL();
