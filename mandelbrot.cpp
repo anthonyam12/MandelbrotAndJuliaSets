@@ -13,27 +13,7 @@ int main( int argc, char* argv[] )
 	MandelbrotPoints = mandelbrot.GetPoints( 1000, 1000, 1000 );
 	//vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000);
 	//MandelbrotPoints = test;
-
-/*
-	for (int i = 0; i < MandelbrotPoints.size(); i++)
-	{
-		ComplexPoint pt = MandelbrotPoints.at(i);
-		ComplexPoint gpu = test.at(i);
-		cout << "CPU: (" << pt.x << ", " << pt.y << ") GPU: (" << gpu.x << ", " << gpu.y << ")" << endl;
-		cout << pt.schemeIndex << ", " << gpu.schemeIndex << endl;
-	}
-*/
-	/*
-	cout << test.size() << ", " << MandelbrotPoints.size() << endl;
-	int x;
-	cin >> x;
-	for( int i = 0; i < MandelbrotPoints.size(); i++ )
-	{
-		ComplexPoint cpu = MandelbrotPoints.at(i);
-		ComplexPoint gpu = test.at(i);
-		cout << gpu.y << ", " << cpu.y << endl;
-	}
-*/
+	
 	// Initialize glut/openGL
 	glutInit( &argc, argv );
 	initOpenGL();
