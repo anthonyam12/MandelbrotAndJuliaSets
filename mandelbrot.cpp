@@ -17,7 +17,11 @@
 *	  get/set min/max values, this would elimate quite a few lines of code and
 *	  many many checks throughout the program if the interface also contained 
 *	  the GetPoints() method.
-*	- Animation could be re-worked to be much smoother.
+*	- Pass in 2D vectors to the GPU kernels so that each thread executes one point.
+*	  As it is now, each kernel computer one column since we iterate the y values
+*	  on each thread.
+*	- Make the if statements in the Mandelbrot and Julia set color settings to use
+*	  a part of MaxIters rather than hardcoded values.
 *
 *******************************************************************************/
 #include "mandelbrot.h" 
@@ -191,11 +195,22 @@ void keyboard( unsigned char key, int x, int y )
 			{
 				JuliaStepsX = JuliaStepsX > 1200 ? JuliaStepsX : JuliaStepsX * 1.1;
 				JuliaStepsY = JuliaStepsY > 1200 ? JuliaStepsY : JuliaStepsY * 1.1;
-				julia.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
-				julia.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
-				julia.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
-				julia.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				if ( !GPU )
+				{	
+					julia.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
+					julia.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
+					julia.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
+					julia.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
+					JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
+				else 
+				{
+					juliaCu.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
+					juliaCu.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
+					juliaCu.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
+					juliaCu.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
+					JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
 			}
 			break;
 		case Minus:
@@ -231,11 +246,22 @@ void keyboard( unsigned char key, int x, int y )
 			{
 				JuliaStepsX = JuliaStepsX < 500 ? JuliaStepsX : JuliaStepsX / 1.1;
 				JuliaStepsY = JuliaStepsY < 500 ? JuliaStepsY : JuliaStepsY / 1.1;
-				julia.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
-				julia.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
-				julia.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
-				julia.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				if( !GPU )
+				{
+					julia.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
+					julia.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
+					julia.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
+					julia.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
+					JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
+				else 
+				{
+					juliaCu.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
+					juliaCu.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
+					juliaCu.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
+					juliaCu.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
+					JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
 			}
 			break;
 		case J:

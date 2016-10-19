@@ -76,9 +76,24 @@ class Julia
 class Julia_cu
 {
 	public:
+		Julia_cu();
 		vector< ComplexPoint > GetPoints( ComplexPoint seed, int nx, int ny, int maxIters );
+		double GetComplexXMin();
+		double GetComplexXMax();
+		double GetComplexYMin();
+		double GetComplexYMax();
+
+		void SetComplexXMin( double xmin );
+		void SetComplexXMax( double xmax );
+		void SetComplexYMin( double ymin );
+		void SetComplexYMax( double ymax );
 	private:
-		ComplexPoint ComplexSquare( ComplexPoint z );
+		double ComplexXMin;
+		double ComplexXMax;
+		double ComplexYMin;
+		double ComplexYMax;
+		double ComplexWidth;
+		double ComplexHeight;
 };
 
 class Mandelbrot
@@ -111,7 +126,6 @@ class Mandelbrot_cu
 {	
 	public:
 		Mandelbrot_cu();
-		//void CalcPoint( float *x, float *y, float *r, float *g, float *b, float w, float h );
 		vector< ComplexPoint > GetPoints( int nx, int ny, int maxIters );
 		
 		double GetComplexXMin();

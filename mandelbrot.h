@@ -31,6 +31,7 @@ vector<ComplexPoint> MandelbrotPoints;
 vector<ComplexPoint> JuliaPoints;
 
 Julia julia;						// Class to get Julia points
+Julia_cu juliaCu;					// Class to get Julia points on the GPU
 Mandelbrot mandelbrot;				// Class to get Mandebrot points
 Mandelbrot_cu mandelbrotCu;			// Mandelbrot calculations on the GPU
 
