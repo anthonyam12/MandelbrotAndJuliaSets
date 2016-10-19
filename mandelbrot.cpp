@@ -1,7 +1,23 @@
+/*******************************************************************************
+* Authors: Anthony Morast
+* Date: 10/21/2016
+* 
+* CSC - 533 Computer Graphics, Dr. John Weiss
+* Program 2 - Mandelbrot and Julia Set Explorer
+*
+* Description:
+*
+* Core Features:
+*
+* Known Bugs:
+*       - No Known Bugs
+*
+*******************************************************************************/
 #include "mandelbrot.h" 
 
-int manWin, julWin;
-
+/*******************************************************************************
+* main() - control over the program, get's things started. 
+*******************************************************************************/
 int main( int argc, char* argv[] )
 {
 	srand( time( NULL ) );
@@ -29,8 +45,16 @@ int main( int argc, char* argv[] )
 }
 
 /*******************************************************************************
- *								OpenGL Functions							   *
- ******************************************************************************/
+*								OpenGL Functions							   *
+*******************************************************************************/
+
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 void display( void )
 {
 	glLoadIdentity();
@@ -60,6 +84,13 @@ void display( void )
 	glFlush();
 }
 
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 void reshape( int w, int h )
 {
 	Reshape = !Reshape;
@@ -79,6 +110,13 @@ void reshape( int w, int h )
 	glClear( GL_COLOR_BUFFER_BIT );
 }
 
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 void keyboard( unsigned char key, int x, int y )
 {
 	MinMax mm = GetMinMax();
@@ -181,6 +219,13 @@ void keyboard( unsigned char key, int x, int y )
 	glutPostRedisplay();
 }
 
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 void special( int key, int x, int y )
 {
 	MinMax mm = GetMinMax();
@@ -251,11 +296,25 @@ void special( int key, int x, int y )
 	glutPostRedisplay();
 }
 
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 void mouseclick( int button, int state, int x, int y )
 {
 	
 }
 
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 void mousemove( int x, int y )
 {
 	// invert y
@@ -281,6 +340,13 @@ void mousemove( int x, int y )
 	//cout << JuliaSeed.x << ", " << JuliaSeed.y << endl;
 }
 
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 void update( int value )
 {
 	if( Animating )
@@ -298,6 +364,13 @@ void update( int value )
 /*******************************************************************************
  *								Misc. Functions								   *
  ******************************************************************************/
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 void initOpenGL( void )
 {
 	glutInitDisplayMode( GLUT_RGB | GLUT_SINGLE );
@@ -305,7 +378,7 @@ void initOpenGL( void )
 	// window settings 
 	glutInitWindowSize( ScreenWidth, ScreenHeight );
 	glutInitWindowPosition( 200, 40 );
-	manWin = glutCreateWindow( "NineteenSixtyX" );
+	glutCreateWindow( "NineteenSixtyX" );
 	
 	// color used to clear screen - black
 	glClearColor( 0.0, 0.0, 0.0, 1.0 );
@@ -320,12 +393,13 @@ void initOpenGL( void )
 	glutTimerFunc( 200, update, 0 );
 }
 
-// TODO:
-// Alternatively (for this method and SetPointColors) we could add a 
-// GetColor( int index ) and SetColor( int index ) to a ColorScheme class
-// where there is a swtich statement to determine which color would be 
-// retrieved or set. Essentially would move code from main to elsewhere.
-// ^ is probably the best choice
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 void GenerateRandomColorScheme()
 {
 	float r;
@@ -349,6 +423,13 @@ void GenerateRandomColorScheme()
 	CurrentScheme = randomScheme;
 }
 
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 void CreateColorVector() 
 {
 	ColorScheme scheme;
@@ -379,6 +460,13 @@ void CreateColorVector()
 	ColorSchemes.push_back( scheme );
 }
 
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 void ChangeColor() 
 {
 	int index = rand() % ColorSchemes.size();
@@ -393,6 +481,13 @@ void ChangeColor()
 	CurrentScheme = newScheme;
 }
 
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carrol
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
 MinMax GetMinMax()
 {
 	double xmin = 0;
