@@ -13,7 +13,9 @@ __global__ void CalcPoint( float *x, float *y, int *scheme, int nx, int ny, int 
 	int index = threadIdx.x + blockIdx.x * blockDim.x;
 	if ( index < nx ) 
 	{
-		for( int i = index*ny; i < (index+1)*ny; i++ )
+		int start = index*ny;
+		int end = start + ny;
+		for( int i = start; i < end; i++ )
 		{
 			double zx0 = x[index];
 			double zy0 = y[i];
@@ -92,20 +94,22 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter )
 {
 	vector< ComplexPoint > points;
 
-	int size_nx = nx * sizeof( double );
-	int size_nynx = ( nx*ny ) * sizeof( double );
+	int size_nx = nx * sizeof( float );
+	int size_nynx = ( nx*ny ) * sizeof( float );
 	int size_sch = ( nx*ny ) * sizeof( int );	
 
-	double *x = ( double * )malloc(size_nx);
-	double *y = ( double * )malloc(size_nynx);
+	float *x = ( float * )malloc(size_nx);
+	float *y = ( float * )malloc(size_nynx);
 	int *scheme = ( int *)malloc(size_sch);
 	
 	// fill arrays with points before passing	
 	ComplexWidth = ComplexXMax - ComplexXMin;
 	ComplexHeight = ComplexYMax - ComplexYMin;
 
-	zIncr.x = ComplexWidth / double( nx );
-	zIncr.y = ComplexHeight / double( ny );
+	ComplexPoint z, zIncr;
+
+	zIncr.x = ComplexWidth / float( nx );
+	zIncr.y = ComplexHeight / float( ny );
 
 	for( int i = 0; i < nx; i++ )
 	{
@@ -124,6 +128,7 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter )
 	// Do host side CUDA prep and run kernel on CUDA device
 	float *d_x, *d_y;
 	int *d_scheme;
+
 	cudaMalloc( ( void** )&d_x, size_nx );
 	cudaMalloc( ( void** )&d_y, size_nynx );
 	cudaMalloc( ( void** )&d_scheme, size_sch );
@@ -141,15 +146,15 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter )
 	cudaMemcpy( y, d_y, size_nynx, cudaMemcpyDeviceToHost );
 	cudaMemcpy( scheme, d_scheme, size_sch, cudaMemcpyDeviceToHost );
 
-
 	for( int i = 0; i < nx; i++ )
 	{
 		z.x = x[i];
-		for( int j = i; j < (i+1)*ny; j++ )
+		
+		for( int j = i*ny; j < (i+1)*ny; j++ )
 		{
 			z.y = y[j];
 			z.schemeIndex = scheme[j];
-			gpupoints.push_back(z);
+			points.push_back(z);
 		}
 	}
 	

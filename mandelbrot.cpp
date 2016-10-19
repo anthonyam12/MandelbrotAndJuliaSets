@@ -35,9 +35,14 @@ int main( int argc, char* argv[] )
 	CurrentScheme = ColorSchemes.at(0);
 
 	// get Mandelbrot points
-	MandelbrotPoints = mandelbrot.GetPoints( 1000, 1000, 1000 );
-	//vector<ComplexPoint> test = mandelbrotCu.GetPoints(1000, 1000, 1000);
-	//MandelbrotPoints = test;
+	if ( !GPU )
+	{
+		MandelbrotPoints = mandelbrot.GetPoints( 1000, 1000, 1000 );
+	}
+	else 
+	{
+		MandelbrotPoints = mandelbrotCu.GetPoints(1000, 1000, 1000);
+	}
 	
 	// Initialize glut/openGL
 	glutInit( &argc, argv );
@@ -68,6 +73,7 @@ int main( int argc, char* argv[] )
 *******************************************************************************/
 void display( void )
 {
+	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
 
 	// get xmin, xmax, ymin and ymax in struct form
@@ -77,8 +83,7 @@ void display( void )
 	gluOrtho2D( mm.xmin, mm.xmax, mm.ymin, mm.ymax );
 	glViewport( 0, 0, ScreenWidth, ScreenHeight );
 
-	glClear( GL_COLOR_BUFFER_BIT );	
-	glutSwapBuffers();
+	glClear( GL_COLOR_BUFFER_BIT );
 
 	// determine if we're drawing a Julia set or the Mandelbrot set
 	vector<ComplexPoint> plotVec = IsJulia ? JuliaPoints : MandelbrotPoints;
@@ -97,7 +102,7 @@ void display( void )
 	}	
 	glEnd();
 
-	glFlush();
+	glutSwapBuffers();
 }
 
 /*******************************************************************************
@@ -165,11 +170,22 @@ void keyboard( unsigned char key, int x, int y )
 			{
 				MandelbrotStepsX = MandelbrotStepsX > 1200 ? MandelbrotStepsX : MandelbrotStepsX*1.1;
 				MandelbrotStepsY = MandelbrotStepsY > 1200 ? MandelbrotStepsY : MandelbrotStepsY*1.1;
-				mandelbrot.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
-				mandelbrot.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
-				mandelbrot.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
-				mandelbrot.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
-				MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				if ( !GPU )
+				{
+					mandelbrot.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
+					mandelbrot.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
+					mandelbrot.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
+					mandelbrot.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
+					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );	
+				}
+				else 
+				{
+					mandelbrotCu.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
+					mandelbrotCu.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
+					mandelbrotCu.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
+					mandelbrotCu.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
+					MandelbrotPoints = mandelbrotCu.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );	
+				}
 			}
 			else 
 			{
@@ -189,14 +205,27 @@ void keyboard( unsigned char key, int x, int y )
 				MandelbrotStepsX = MandelbrotStepsX < 500 
 								   ? MandelbrotStepsX 
 								   : MandelbrotStepsX/1.1;
+				MandelbrotStepsX = GPU ? 1200 : MandelbrotStepsX;
 				MandelbrotStepsY = MandelbrotStepsY < 500 
 								   ? MandelbrotStepsY 
 								   : MandelbrotStepsY/1.1;
-				mandelbrot.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
-				mandelbrot.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
-				mandelbrot.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
-				mandelbrot.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
-				MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				MandelbrotStepsY = GPU ? 1200 : MandelbrotStepsY;
+				if( !GPU )
+				{
+					mandelbrot.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
+					mandelbrot.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
+					mandelbrot.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
+					mandelbrot.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
+					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				}
+				else 
+				{
+					mandelbrotCu.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
+					mandelbrotCu.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
+					mandelbrotCu.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
+					mandelbrotCu.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
+					MandelbrotPoints = mandelbrotCu.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				}
 			}
 			else 
 			{
@@ -266,57 +295,93 @@ void special( int key, int x, int y )
 		case GLUT_KEY_RIGHT:
 			if ( !IsJulia )
 			{
-				mandelbrot.SetComplexXMin( mm.xmin + ( xlength*.3 ) );
-				mandelbrot.SetComplexXMax( mm.xmax + ( xlength*.3 ) );			
-				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000 );
+				if ( !GPU )
+				{
+					mandelbrot.SetComplexXMin( mm.xmin + ( xlength*.3 ) );
+					mandelbrot.SetComplexXMax( mm.xmax + ( xlength*.3 ) );			
+					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				}
+				else 
+				{
+					mandelbrotCu.SetComplexXMin( mm.xmin + ( xlength*.3 ) );
+					mandelbrotCu.SetComplexXMax( mm.xmax + ( xlength*.3 ) );			
+					MandelbrotPoints = mandelbrotCu.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				}
 			}
 			else 
 			{	
 				julia.SetComplexXMin( mm.xmin + ( xlength*.3 ) );
 				julia.SetComplexXMax( mm.xmax + ( xlength*.3 ) );			
-				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000 );
+				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
 			}
 			break;
 		case GLUT_KEY_LEFT:
 			if ( !IsJulia )
 			{
-				mandelbrot.SetComplexXMin( mm.xmin - ( xlength*.3 ) );
-				mandelbrot.SetComplexXMax( mm.xmax - ( xlength*.3 ) );
-				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000 );
+				if ( !GPU )
+				{
+					mandelbrot.SetComplexXMin( mm.xmin - ( xlength*.3 ) );
+					mandelbrot.SetComplexXMax( mm.xmax - ( xlength*.3 ) );
+					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				}
+				else 
+				{
+					mandelbrotCu.SetComplexXMin( mm.xmin - ( xlength*.3 ) );
+					mandelbrotCu.SetComplexXMax( mm.xmax - ( xlength*.3 ) );
+					MandelbrotPoints = mandelbrotCu.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				}
 			} 
 			else 
 			{	
 				julia.SetComplexXMin( mm.xmin - ( xlength*.3 ) );
 				julia.SetComplexXMax( mm.xmax - ( xlength*.3 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000 );
+				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
 			}
 			break;
 		case GLUT_KEY_UP:
 			if ( !IsJulia )
 			{
-				mandelbrot.SetComplexYMin( mm.ymin + ( ylength*.3 ) );
-				mandelbrot.SetComplexYMax( mm.ymax + ( ylength*.3 ) );
-				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000 );
+				if ( !GPU )
+				{
+					mandelbrot.SetComplexYMin( mm.ymin + ( ylength*.3 ) );
+					mandelbrot.SetComplexYMax( mm.ymax + ( ylength*.3 ) );
+					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				}
+				else 
+				{
+					mandelbrotCu.SetComplexYMin( mm.ymin + ( ylength*.3 ) );
+					mandelbrotCu.SetComplexYMax( mm.ymax + ( ylength*.3 ) );
+					MandelbrotPoints = mandelbrotCu.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				}
 			}
 			else 
 			{
 				julia.SetComplexYMin( mm.ymin + ( ylength*.3 ) );
 				julia.SetComplexYMax( mm.ymax + ( ylength*.3 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000 );
+				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
 			}
 			break;
 		case GLUT_KEY_DOWN:
 			if ( !IsJulia )
 			{
-				mandelbrot.SetComplexYMin( mm.ymin - ( ylength*.3 ) );
-				mandelbrot.SetComplexYMax( mm.ymax - ( ylength*.3 ) );
-				MandelbrotPoints = mandelbrot.GetPoints( 500, 500, 1000 );
+				if ( !GPU )
+				{
+					mandelbrot.SetComplexYMin( mm.ymin - ( ylength*.3 ) );
+					mandelbrot.SetComplexYMax( mm.ymax - ( ylength*.3 ) );
+					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				}
+				else 
+				{
+					mandelbrotCu.SetComplexYMin( mm.ymin - ( ylength*.3 ) );
+					mandelbrotCu.SetComplexYMax( mm.ymax - ( ylength*.3 ) );
+					MandelbrotPoints = mandelbrotCu.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+				}
 			}
 			else 
 			{
 				julia.SetComplexYMin( mm.ymin - ( ylength*.3 ) );
 				julia.SetComplexYMax( mm.ymax - ( ylength*.3 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, 500, 500, 1000 );
+				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
 			}
 			break;
 	}
@@ -414,7 +479,7 @@ void update( int value )
 *******************************************************************************/
 void initOpenGL( void )
 {
-	glutInitDisplayMode( GLUT_RGB | GLUT_SINGLE );
+	glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE );
 	
 	// window settings 
 	glutInitWindowSize( ScreenWidth, ScreenHeight );
@@ -564,10 +629,20 @@ MinMax GetMinMax()
 	// determine which class to get the points from and call the proper getters
 	if( !IsJulia )
 	{
-		mm.xmin = mandelbrot.GetComplexXMin();
-		mm.xmax = mandelbrot.GetComplexXMax();
-		mm.ymin = mandelbrot.GetComplexYMin();
-		mm.ymax = mandelbrot.GetComplexYMax();
+		if ( !GPU ) 
+		{
+			mm.xmin = mandelbrot.GetComplexXMin();
+			mm.xmax = mandelbrot.GetComplexXMax();
+			mm.ymin = mandelbrot.GetComplexYMin();
+			mm.ymax = mandelbrot.GetComplexYMax();	
+		}
+		else 
+		{
+			mm.xmin = mandelbrotCu.GetComplexXMin();
+			mm.xmax = mandelbrotCu.GetComplexXMax();
+			mm.ymin = mandelbrotCu.GetComplexYMin();
+			mm.ymax = mandelbrotCu.GetComplexYMax();	
+		}
 	}
 	else 
 	{

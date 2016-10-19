@@ -32,7 +32,7 @@ vector<ComplexPoint> JuliaPoints;
 
 Julia julia;						// Class to get Julia points
 Mandelbrot mandelbrot;				// Class to get Mandebrot points
-//Mandelbrot_cu mandelbrotCu;			// Mandelbrot calculations on the GPU
+Mandelbrot_cu mandelbrotCu;			// Mandelbrot calculations on the GPU
 
 vector< ColorScheme > ColorSchemes;	// Colors for the points
 ColorScheme CurrentScheme;			// Scheme currently being used
@@ -41,6 +41,7 @@ ComplexPoint JuliaSeed;				// Seed for the Julia Set
 bool IsJulia = false;				// Display the Julia set or Mandelbrot Set
 bool Animating = false;				// Are we animating?
 bool Reshape = false;				// Used in preventing reshaping
+bool GPU = true;
 
 int MandelbrotStepsX = 500;
 int MandelbrotStepsY = 500;
