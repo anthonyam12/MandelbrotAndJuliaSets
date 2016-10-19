@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Authors: Anthony Morast
+* Authors: Anthony Morast, Samuel Carroll
 * Date: 10/21/2016
 * 
 * CSC - 533 Computer Graphics, Dr. John Weiss
@@ -10,7 +10,14 @@
 * Core Features:
 *
 * Known Bugs:
-*       - No Known Bugs
+*	- No Known Bugs
+*
+* Potential Improvements:
+*	- Could make the Julia and Mandelbrot sets implement an interface with the 
+*	  get/set min/max values, this would elimate quite a few lines of code and
+*	  many many checks throughout the program if the interface also contained 
+*	  the GetPoints() method.
+*	- Animation could be re-worked to be much smoother.
 *
 *******************************************************************************/
 #include "mandelbrot.h" 
@@ -22,7 +29,9 @@ int main( int argc, char* argv[] )
 {
 	srand( time( NULL ) );
 
+	// store two colors at the start
 	CreateColorVector();
+	// set the default color scheme
 	CurrentScheme = ColorSchemes.at(0);
 
 	// get Mandelbrot points
@@ -49,31 +58,38 @@ int main( int argc, char* argv[] )
 *******************************************************************************/
 
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
-* \brief 
+* Authors: Anthony Morast, Samuel Carroll
+* \brief Displays the Mandelbrot or Julia Points
 *
-* \params
-* \return
+* An OpenGL callback to display the sets in the Mandelbrot or Julia sets. 
+*
+* \params none
+* \return none
 *******************************************************************************/
 void display( void )
 {
 	glLoadIdentity();
 
-	MinMax mm = GetMinMax();	
+	// get xmin, xmax, ymin and ymax in struct form
+	MinMax mm = GetMinMax();
 
+	// set the viewpost and projection
 	gluOrtho2D( mm.xmin, mm.xmax, mm.ymin, mm.ymax );
 	glViewport( 0, 0, ScreenWidth, ScreenHeight );
 
 	glClear( GL_COLOR_BUFFER_BIT );	
 	glutSwapBuffers();
 
+	// determine if we're drawing a Julia set or the Mandelbrot set
 	vector<ComplexPoint> plotVec = IsJulia ? JuliaPoints : MandelbrotPoints;
 
+	// draw the points in their scheme color 
 	ComplexPoint pt;
 	glBegin( GL_POINTS );
 	for( int i = 0; i < plotVec.size();  i++ )
 	{
 		pt = plotVec.at(i);
+		// get the color from the scheme
 		Color color = CurrentScheme.GetColor( pt.schemeIndex );
 		float colorv[3] = { color.r, color.g, color.b };
 		glColor3fv( colorv );
@@ -85,25 +101,37 @@ void display( void )
 }
 
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
-* \brief 
+* Authors: Anthony Morast, Samuel Carroll
+* \brief The OpenGL callback function called when resizing the window.
 *
-* \params
-* \return
+* In this particular case resizing the window is prevented. This is to keep the
+* computations down when running on the CPU. If the window is enlarged there 
+* would need to be more steps in the x and y directions. Furthermore, it would
+* be wise to keep w = h since the distortion really affects the sets. To avoid
+* all of this we chose to prevent resizing.
+*
+* \params w - screen width
+*		  h - screen height
+* \return none
 *******************************************************************************/
 void reshape( int w, int h )
 {
+	// want to call this reshape function to set the screen back to the original
+	// size (prevents resizing). If we don't have the flag it is an infinite loop
+	// since glutReshapeWindow() calls reshape().
 	Reshape = !Reshape;
 	if ( Reshape )
 	{
 		glutReshapeWindow( ScreenWidth, ScreenHeight );
 	}
 
+	// get x/y min/max 
 	MinMax mm = GetMinMax();
 
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
 
+	// set viewport and projection coords
 	gluOrtho2D( mm.xmin, mm.xmax, mm.ymin, mm.ymax  );
 	glViewport( 0, 0, ScreenWidth, ScreenHeight );
 
@@ -111,7 +139,7 @@ void reshape( int w, int h )
 }
 
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
+* Authors: Anthony Morast, Samuel Carroll
 * \brief 
 *
 * \params
@@ -220,7 +248,7 @@ void keyboard( unsigned char key, int x, int y )
 }
 
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
+* Authors: Anthony Morast, Samuel Carroll
 * \brief 
 *
 * \params
@@ -297,7 +325,7 @@ void special( int key, int x, int y )
 }
 
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
+* Authors: Anthony Morast, Samuel Carroll
 * \brief 
 *
 * \params
@@ -309,7 +337,7 @@ void mouseclick( int button, int state, int x, int y )
 }
 
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
+* Authors: Anthony Morast, Samuel Carroll
 * \brief 
 *
 * \params
@@ -341,19 +369,29 @@ void mousemove( int x, int y )
 }
 
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
-* \brief 
+* Authors: Anthony Morast, Samuel Carroll
+* \brief Animates the colors in the currently displayed set
 *
-* \params
-* \return
+* Due to how our points get their colors, in order to animate the colors we only
+* need to change the color's index within it's color scheme. A points color is
+* set right before it is drawn by calling into the color scheme class to get a
+* color at a specific index (0-10). This function changes the indexes of the 
+* colors so they appear to be moving outwards from the center of the set.
+*
+* \params value - not used
+* \return none
 *******************************************************************************/
 void update( int value )
 {
+	// if we are animating we want to change things, otherwise don't
 	if( Animating )
 	{
+		// make a copy of the current scheme so we can use the colors after 
+		// they change
 		ColorScheme constScheme = CurrentScheme;
 		for( int i = 0; i < 11; i++ )
 		{
+			// change the colors to the 'next' color
 			CurrentScheme.SetColor( i, constScheme.GetColor( ( i + 10 ) % 11 ) );
 		}
 		glutPostRedisplay();
@@ -365,11 +403,14 @@ void update( int value )
  *								Misc. Functions								   *
  ******************************************************************************/
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
-* \brief 
+* Authors: Anthony Morast, Samuel Carroll
+* \brief Initializes OpenGL states and callbacks
 *
-* \params
-* \return
+* Initializes OpenGL states and callbacks. Sets the window size and title.
+* Makes the initial call to our update function for animation.
+*
+* \params none
+* \return none
 *******************************************************************************/
 void initOpenGL( void )
 {
@@ -390,15 +431,21 @@ void initOpenGL( void )
 	glutPassiveMotionFunc( mousemove );
 	glutSpecialFunc( special );
 
+	// update function for animation
 	glutTimerFunc( 200, update, 0 );
 }
 
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
-* \brief 
+* Authors: Anthony Morast, Samuel Carroll
+* \brief Generates a random color scheme
 *
-* \params
-* \return
+* Creates a new ColorScheme object with random colors for color 1 through color
+* 10. However, we chose to keep the black points black in all schemes so that 
+* color is not randomized. The random scheme becomes the current color scheme 
+* and the random scheme is added to a vector containing all color schemes.
+*
+* \params none 
+* \return none
 *******************************************************************************/
 void GenerateRandomColorScheme()
 {
@@ -406,6 +453,7 @@ void GenerateRandomColorScheme()
 	float g;
 	float b;
 
+	// create new scheme and set black to the color black
 	ColorScheme randomScheme;
 	Color black( 0, 0, 0 );
 	randomScheme.SetColor( 0, black );
@@ -413,28 +461,37 @@ void GenerateRandomColorScheme()
 	// set colors 1 through 10
 	for( int i = 1; i < 11; i++ ) 
 	{
+		// get random red, green, and blue values
 		r = (float)(rand()) / (float)(RAND_MAX);
 		g = (float)(rand()) / (float)(RAND_MAX);
 		b = (float)(rand()) / (float)(RAND_MAX);
 		randomScheme.SetColor( i, Color( r, g, b ) );
 	}
 
+	// add the scheme to the vector of schemes
 	ColorSchemes.push_back( randomScheme );
+	// set the scheme to the current color scheme
 	CurrentScheme = randomScheme;
 }
 
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
-* \brief 
+* Authors: Anthony Morast, Samuel Carroll
+* \brief Creates the default color scheme vector
 *
-* \params
-* \return
+* Creates two ColorScheme objects with two different color scheme values. These
+* schemes are added to a global vector to store all color schemes. 
+*
+* \params none
+* \return none
 *******************************************************************************/
 void CreateColorVector() 
 {
 	ColorScheme scheme;
+	// we're going to keep the black points black, regardless of the other
+	// scheme colors
 	scheme.SetColor( 0, Color( 0, 0, 0 ) );
 
+	// create and add a default scheme to the scheme vector
 	scheme.SetColor( 1, Color( 1, .5, 0 ) );
 	scheme.SetColor( 2, Color( 1, 0, 0 ) );
 	scheme.SetColor( 3, Color( 0, 0, .5 ) );
@@ -447,6 +504,7 @@ void CreateColorVector()
 	scheme.SetColor( 10, Color( 0, 1, 1 ) );
 	ColorSchemes.push_back( scheme );
 
+	// create and add a secondary scheme to the scheme vector 
 	scheme.SetColor( 1, Color( 0, .5, 1 ) );
 	scheme.SetColor( 2, Color( 0, 1, .7 ) );
 	scheme.SetColor( 3, Color( .7, 0, 0) );
@@ -461,14 +519,18 @@ void CreateColorVector()
 }
 
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
-* \brief 
+* Authors: Anthony Morast, Samuel Carroll
+* \brief Changes the color scheme of the set's points
 *
-* \params
-* \return
+* Selects a random color scheme from the color scheme vector and, if the scheme
+* is currently not being used, the current scheme is set to the new scheme.
+*
+* \params none
+* \return none
 *******************************************************************************/
 void ChangeColor() 
 {
+	// random scheme index
 	int index = rand() % ColorSchemes.size();
 	ColorScheme newScheme = ColorSchemes.at(index);
 	
@@ -478,44 +540,42 @@ void ChangeColor()
 		index = rand() % ColorSchemes.size();
 		newScheme = ColorSchemes.at(index);
 	}
+	// set the scheme
 	CurrentScheme = newScheme;
 }
 
 /*******************************************************************************
-* Authors: Anthony Morast, Samuel Carrol
-* \brief 
+* Authors: Anthony Morast, Samuel Carroll
+* \brief Returns a MinMax structure which stores x/y min/max values
 *
-* \params
-* \return
+* Determines if we need to get the min and max values from Julia sets of from the
+* Mandelbrot set. Then using the GPU/CPU flag determines if the min and max
+* values will come from the CPU or GPU versions of the classes used to get the
+* points for these sets.
+*
+* \params none
+* \return MinMax - a struct containing min/max information for the x and y values
 *******************************************************************************/
 MinMax GetMinMax()
 {
-	double xmin = 0;
-	double xmax = 0;
-	double ymin = 0;
-	double ymax = 0;
-
+	// struct to be returned
+	MinMax mm;
+	
+	// determine which class to get the points from and call the proper getters
 	if( !IsJulia )
 	{
-		xmin = mandelbrot.GetComplexXMin();
-		xmax = mandelbrot.GetComplexXMax();
-		ymin = mandelbrot.GetComplexYMin();
-		ymax = mandelbrot.GetComplexYMax();
+		mm.xmin = mandelbrot.GetComplexXMin();
+		mm.xmax = mandelbrot.GetComplexXMax();
+		mm.ymin = mandelbrot.GetComplexYMin();
+		mm.ymax = mandelbrot.GetComplexYMax();
 	}
 	else 
 	{
-		xmin = julia.GetComplexXMin();
-		xmax = julia.GetComplexXMax();
-		ymin = julia.GetComplexYMin();
-		ymax = julia.GetComplexYMax();
+		mm.xmin = julia.GetComplexXMin();
+		mm.xmax = julia.GetComplexXMax();
+		mm.ymin = julia.GetComplexYMin();
+		mm.ymax = julia.GetComplexYMax();
 	}
 
-	MinMax minMax;
-
-	minMax.xmin = xmin;
-	minMax.xmax = xmax;
-	minMax.ymin = ymin;
-	minMax.ymax = ymax;
-
-	return minMax;
+	return mm;
 }
