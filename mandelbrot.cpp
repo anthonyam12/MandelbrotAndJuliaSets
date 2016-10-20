@@ -33,6 +33,16 @@ int main( int argc, char* argv[] )
 {
 	srand( time( NULL ) );
 
+	// get command line input (only care about '-cpu')
+	if ( argc > 1 )
+	{	
+		string input = argv[1];
+		if ( input == "-cpu" )
+		{
+			GPU = !GPU;
+		}
+	}
+
 	// store two colors at the start
 	CreateColorVector();
 	// set the default color scheme
@@ -245,7 +255,9 @@ void keyboard( unsigned char key, int x, int y )
 			else 
 			{
 				JuliaStepsX = JuliaStepsX < 500 ? JuliaStepsX : JuliaStepsX / 1.1;
+				JuliaStepsX = GPU ? 1200 : JuliaStepsX;
 				JuliaStepsY = JuliaStepsY < 500 ? JuliaStepsY : JuliaStepsY / 1.1;
+				JuliaStepsY = GPU ? 1200 : JuliaStepsY;
 				if( !GPU )
 				{
 					julia.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
@@ -272,7 +284,14 @@ void keyboard( unsigned char key, int x, int y )
 			julia.SetComplexYMin( -2 );
 			if ( !IsJulia )
 			{
-				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				if ( !GPU )
+				{
+					JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
+				else
+				{
+					JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
 			}
 			JuliaStepsX = 500;
 			JuliaStepsY = 500;
@@ -336,9 +355,18 @@ void special( int key, int x, int y )
 			}
 			else 
 			{	
-				julia.SetComplexXMin( mm.xmin + ( xlength*.3 ) );
-				julia.SetComplexXMax( mm.xmax + ( xlength*.3 ) );			
-				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				if( !GPU ) 
+				{
+					julia.SetComplexXMin( mm.xmin + ( xlength*.3 ) );
+					julia.SetComplexXMax( mm.xmax + ( xlength*.3 ) );			
+					JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
+				else 
+				{
+					juliaCu.SetComplexXMin( mm.xmin + ( xlength*.3 ) );
+					juliaCu.SetComplexXMax( mm.xmax + ( xlength*.3 ) );			
+					JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
 			}
 			break;
 		case GLUT_KEY_LEFT:
@@ -359,9 +387,18 @@ void special( int key, int x, int y )
 			} 
 			else 
 			{	
-				julia.SetComplexXMin( mm.xmin - ( xlength*.3 ) );
-				julia.SetComplexXMax( mm.xmax - ( xlength*.3 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				if ( !GPU )
+				{
+					julia.SetComplexXMin( mm.xmin - ( xlength*.3 ) );
+					julia.SetComplexXMax( mm.xmax - ( xlength*.3 ) );
+					JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
+				else 
+				{
+					juliaCu.SetComplexXMin( mm.xmin - ( xlength*.3 ) );
+					juliaCu.SetComplexXMax( mm.xmax - ( xlength*.3 ) );
+					JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
 			}
 			break;
 		case GLUT_KEY_UP:
@@ -382,9 +419,18 @@ void special( int key, int x, int y )
 			}
 			else 
 			{
-				julia.SetComplexYMin( mm.ymin + ( ylength*.3 ) );
-				julia.SetComplexYMax( mm.ymax + ( ylength*.3 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				if ( !GPU )
+				{
+					julia.SetComplexYMin( mm.ymin + ( ylength*.3 ) );
+					julia.SetComplexYMax( mm.ymax + ( ylength*.3 ) );
+					JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
+				else 
+				{
+					juliaCu.SetComplexYMin( mm.ymin + ( ylength*.3 ) );
+					juliaCu.SetComplexYMax( mm.ymax + ( ylength*.3 ) );
+					JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
 			}
 			break;
 		case GLUT_KEY_DOWN:
@@ -404,10 +450,19 @@ void special( int key, int x, int y )
 				}
 			}
 			else 
-			{
-				julia.SetComplexYMin( mm.ymin - ( ylength*.3 ) );
-				julia.SetComplexYMax( mm.ymax - ( ylength*.3 ) );
-				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+			{	
+				if ( !GPU )
+				{
+					julia.SetComplexYMin( mm.ymin - ( ylength*.3 ) );
+					julia.SetComplexYMax( mm.ymax - ( ylength*.3 ) );
+					JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
+				else 
+				{
+					juliaCu.SetComplexYMin( mm.ymin - ( ylength*.3 ) );
+					juliaCu.SetComplexYMax( mm.ymax - ( ylength*.3 ) );
+					JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+				}
 			}
 			break;
 	}
@@ -487,7 +542,7 @@ void update( int value )
 		}
 		glutPostRedisplay();
 	}
-	glutTimerFunc( 200, update, 0 );
+	glutTimerFunc( 100, update, 0 );
 }
 
 /*******************************************************************************
@@ -523,7 +578,7 @@ void initOpenGL( void )
 	glutSpecialFunc( special );
 
 	// update function for animation
-	glutTimerFunc( 200, update, 0 );
+	glutTimerFunc( 100, update, 0 );
 }
 
 /*******************************************************************************
@@ -672,10 +727,20 @@ MinMax GetMinMax()
 	}
 	else 
 	{
-		mm.xmin = julia.GetComplexXMin();
-		mm.xmax = julia.GetComplexXMax();
-		mm.ymin = julia.GetComplexYMin();
-		mm.ymax = julia.GetComplexYMax();
+		if ( !GPU )
+		{
+			mm.xmin = julia.GetComplexXMin();
+			mm.xmax = julia.GetComplexXMax();
+			mm.ymin = julia.GetComplexYMin();
+			mm.ymax = julia.GetComplexYMax();
+		}
+		else
+		{
+			mm.xmin = juliaCu.GetComplexXMin();
+			mm.xmax = juliaCu.GetComplexXMax();
+			mm.ymin = juliaCu.GetComplexYMin();
+			mm.ymax = juliaCu.GetComplexYMax();
+		}
 	}
 
 	return mm;

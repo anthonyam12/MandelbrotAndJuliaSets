@@ -8,8 +8,8 @@ Julia_cu::Julia_cu()
 	this->ComplexYMax = 2.0;
 }
 
-__global__ void CalcPoint<<< nBlocks, nThreads >>>( float *d_x, float *d_y, float *d_scheme, 
-									int nx, int ny, int maxIter, double seedx, double seedy )
+__global__ void CalcPoint( float *x, float *y, int *scheme, int nx, 
+						   int ny, int maxIter, double seedx, double seedy )
 {
 	int index = threadIdx.x + blockIdx.x * blockDim.x;
 	if ( index < nx )
@@ -18,7 +18,6 @@ __global__ void CalcPoint<<< nBlocks, nThreads >>>( float *d_x, float *d_y, floa
 		int end = start + ny;
 		for ( int i = start; i < end; i++ )
 		{
-
 			double zx = x[index];
 			double zy = y[i];
 
@@ -90,13 +89,10 @@ __global__ void CalcPoint<<< nBlocks, nThreads >>>( float *d_x, float *d_y, floa
 }
 
 
-vector< ComplexPoint > Julia_cu::GetPoints( ComplexPoint seed, int nx, int ny,  int maxIters )
+vector< ComplexPoint > Julia_cu::GetPoints( ComplexPoint seed, int nx, int ny,  int maxIter )
 {
 	vector< ComplexPoint > points;
 	ComplexPoint zIncr, z;
-
-	double seedX = seed.x;
-	double seedY = seed.y;
 	
 	int size_nx = nx * sizeof( float );
 	int size_nynx = ny * nx * sizeof( float );
@@ -110,13 +106,13 @@ vector< ComplexPoint > Julia_cu::GetPoints( ComplexPoint seed, int nx, int ny,  
 	ComplexHeight = ComplexYMax - ComplexYMin;
 	
 	zIncr.x = ComplexWidth / float( nx );
-	xIncr.y = ComplexHeight / float( ny );
+	zIncr.y = ComplexHeight / float( ny );
 
 	for( int i = 0; i < nx; i++ )
 	{
-		x[i] = ComplexXMin + ( xIncr.x * i );
+		x[i] = ComplexXMin + ( zIncr.x * i );
 		int multiplier = 0;
-		for( int j = 0; j < nx; j++ )
+		for( int j = i*ny; j < (i+1)*ny; j++ )
 		{
 			y[j] = ComplexYMin + ( zIncr.y * multiplier );
 			scheme[i] = 0;
@@ -136,9 +132,9 @@ vector< ComplexPoint > Julia_cu::GetPoints( ComplexPoint seed, int nx, int ny,  
 	cudaMemcpy( d_scheme, scheme, size_nynx, cudaMemcpyHostToDevice );
 
 	int nThreads = 64;
-	int nBlocks = ( nx + nThreds - 1 ) / nThreads;
+	int nBlocks = ( nx + nThreads - 1 ) / nThreads;
 
-	CalcPoint<<< nBlocks, nThreads >>>( d_x, d_y, d_scheme, nx, ny, maxIter, seedx, seedy );
+	CalcPoint<<< nBlocks, nThreads >>>( d_x, d_y, d_scheme, nx, ny, maxIter, seed.x, seed.y );
 	
 	cudaMemcpy( x, d_x, size_nx, cudaMemcpyDeviceToHost );
 	cudaMemcpy( y, d_y, size_nynx, cudaMemcpyDeviceToHost );
@@ -150,7 +146,7 @@ vector< ComplexPoint > Julia_cu::GetPoints( ComplexPoint seed, int nx, int ny,  
 		for ( int j = i*ny; j < (i+1)*ny; j++ )
 		{
 			z.y = y[j];
-			z.schemeIndex = scheme[j]l
+			z.schemeIndex = scheme[j];
 			points.push_back( z );
 		}
 	}

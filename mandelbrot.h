@@ -3,6 +3,8 @@
 #include <math.h>			// may not need - check
 #include <time.h>			// random see
 #include <stdlib.h>			// rand()
+#include <sstream> 			// command line args
+#include <string>			// command line input
 
 #include "global.h"
 
