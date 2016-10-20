@@ -208,9 +208,11 @@ void keyboard( unsigned char key, int x, int y )
 			break;
 		case C:
 			ChangeColor();
+			BeforeAnimating = CurrentScheme;
 			break;
 		case R:
 			GenerateRandomColorScheme();
+			BeforeAnimating = CurrentScheme;
 			break;
 		case A:
 			Animating = !Animating;

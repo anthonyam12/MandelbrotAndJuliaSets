@@ -48,7 +48,7 @@ mandelbrot_points: mandelbrot_points.o
 # remove the cu after this target to compule the cu stuff (need to 
 # remove the other mandelbrot target as well). 
 mandelbrot: julia.o mandelbrot_points.o color.o colorscheme.o mandelbrot_cuda.o julia_cuda.o
-	$(LINK) -o $@ $^ mandelbrot.cpp $(GL_LIBS) -L/usr/local/cuda/lib64 -lcuda -lcudart
+	$(LINK) -o $@ $^ mandelbrot.cpp $(GL_LIBS) -L/usr/local/cuda/lib -lcuda -lcudart
 
 # to build mandelbrot while on a machine without cuda
 mandelbrot_cpu: julia.o mandelbrot_points.o color.o colorscheme.o
