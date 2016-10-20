@@ -70,3 +70,4 @@ void CreateColorVector();
 void ChangeColor();
 bool EqualSchemes( ColorScheme scheme1, ColorScheme scheme2 );
 MinMax GetMinMax();
+void zoom( bool zoomIn );

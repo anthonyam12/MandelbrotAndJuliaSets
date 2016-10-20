@@ -10,7 +10,12 @@
 * Core Features:
 *
 * Known Bugs:
-*	- No Known Bugs
+*	- Sort of a bug: zoom in and out don't zoom the same amount. Would need to
+*	  the math behind the operations.
+*	- On the CPU, the zoom out makes lines appear because we are taking too 
+*	  many steps away from nx and ny too quickly. That is, we would need to 
+*	  decrease nx and ny more intelligently to prevent these lines. Not a 
+*	  problem running on GPU 
 *
 * Potential Improvements:
 *	- Could make the Julia and Mandelbrot sets implement an interface with the 
@@ -166,10 +171,6 @@ void reshape( int w, int h )
 *******************************************************************************/
 void keyboard( unsigned char key, int x, int y )
 {
-	MinMax mm = GetMinMax();
-	double xlength = mm.xmax - mm.xmin;
-	double ylength = mm.ymax - mm.ymin;
-
 	// +/- keys for zoom 
 	// J - toggle between Mandelbrot and Julia Sets at Current Cursor position
 	// 	   (open new window for Julia)
@@ -179,102 +180,10 @@ void keyboard( unsigned char key, int x, int y )
 	switch ( key ) 
 	{
 		case Plus:
-			// TODO: there is probably a more efficient way to handle the IsJulia stuff
-			if ( !IsJulia )
-			{
-				MandelbrotStepsX = MandelbrotStepsX > 1200 ? MandelbrotStepsX : MandelbrotStepsX*1.1;
-				MandelbrotStepsY = MandelbrotStepsY > 1200 ? MandelbrotStepsY : MandelbrotStepsY*1.1;
-				if ( !GPU )
-				{
-					mandelbrot.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
-					mandelbrot.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
-					mandelbrot.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
-					mandelbrot.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
-					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );	
-				}
-				else 
-				{
-					mandelbrotCu.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
-					mandelbrotCu.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
-					mandelbrotCu.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
-					mandelbrotCu.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
-					MandelbrotPoints = mandelbrotCu.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );	
-				}
-			}
-			else 
-			{
-				JuliaStepsX = JuliaStepsX > 1200 ? JuliaStepsX : JuliaStepsX * 1.1;
-				JuliaStepsY = JuliaStepsY > 1200 ? JuliaStepsY : JuliaStepsY * 1.1;
-				if ( !GPU )
-				{	
-					julia.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
-					julia.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
-					julia.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
-					julia.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
-					JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
-				}
-				else 
-				{
-					juliaCu.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
-					juliaCu.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
-					juliaCu.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
-					juliaCu.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
-					JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
-				}
-			}
+			zoom( true );
 			break;
 		case Minus:
-			// TODO: for zoom out we need to add on more than 10% because of how precents work, obvs
-			if ( !IsJulia )
-			{
-				MandelbrotStepsX = MandelbrotStepsX < 500 
-								   ? MandelbrotStepsX 
-								   : MandelbrotStepsX/1.1;
-				MandelbrotStepsX = GPU ? 1200 : MandelbrotStepsX;
-				MandelbrotStepsY = MandelbrotStepsY < 500 
-								   ? MandelbrotStepsY 
-								   : MandelbrotStepsY/1.1;
-				MandelbrotStepsY = GPU ? 1200 : MandelbrotStepsY;
-				if( !GPU )
-				{
-					mandelbrot.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
-					mandelbrot.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
-					mandelbrot.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
-					mandelbrot.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
-					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
-				}
-				else 
-				{
-					mandelbrotCu.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
-					mandelbrotCu.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
-					mandelbrotCu.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
-					mandelbrotCu.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
-					MandelbrotPoints = mandelbrotCu.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
-				}
-			}
-			else 
-			{
-				JuliaStepsX = JuliaStepsX < 500 ? JuliaStepsX : JuliaStepsX / 1.1;
-				JuliaStepsX = GPU ? 1200 : JuliaStepsX;
-				JuliaStepsY = JuliaStepsY < 500 ? JuliaStepsY : JuliaStepsY / 1.1;
-				JuliaStepsY = GPU ? 1200 : JuliaStepsY;
-				if( !GPU )
-				{
-					julia.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
-					julia.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
-					julia.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
-					julia.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
-					JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
-				}
-				else 
-				{
-					juliaCu.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
-					juliaCu.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
-					juliaCu.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
-					juliaCu.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
-					JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
-				}
-			}
+			zoom( false );
 			break;
 		case J:
 			// Calc/Open Julia Set
@@ -479,7 +388,15 @@ void special( int key, int x, int y )
 *******************************************************************************/
 void mouseclick( int button, int state, int x, int y )
 {
-	
+	if( button == 3 )
+	{
+		zoom( true );	
+	}
+	if( button == 4 )
+	{
+		zoom( false );
+	}
+	glutPostRedisplay();
 }
 
 /*******************************************************************************
@@ -507,11 +424,6 @@ void mousemove( int x, int y )
 		JuliaSeed.x = plotx;
 		JuliaSeed.y = ploty;
 	}
-	else 
-	{
-		
-	}
-	//cout << JuliaSeed.x << ", " << JuliaSeed.y << endl;
 }
 
 /*******************************************************************************
@@ -575,6 +487,7 @@ void initOpenGL( void )
 	glutReshapeFunc( reshape );
 	glutKeyboardFunc( keyboard );
 	glutPassiveMotionFunc( mousemove );
+	glutMouseFunc( mouseclick );
 	glutSpecialFunc( special );
 
 	// update function for animation
@@ -744,4 +657,117 @@ MinMax GetMinMax()
 	}
 
 	return mm;
+}
+
+/*******************************************************************************
+* Authors: Anthony Morast, Samuel Carroll
+* \brief 
+*
+* \params
+* \return
+*******************************************************************************/
+void zoom( bool zoomIn )
+{
+	MinMax mm = GetMinMax();
+	double xlength = mm.xmax - mm.xmin;
+	double ylength = mm.ymax - mm.ymin;
+
+	if( zoomIn )
+	{
+		if ( !IsJulia )
+		{
+			MandelbrotStepsX = MandelbrotStepsX > 1200 ? MandelbrotStepsX : MandelbrotStepsX*1.1;
+			MandelbrotStepsY = MandelbrotStepsY > 1200 ? MandelbrotStepsY : MandelbrotStepsY*1.1;
+			if ( !GPU )
+			{
+				mandelbrot.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
+				mandelbrot.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
+				mandelbrot.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
+				mandelbrot.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );	
+			}
+			else 
+			{
+				mandelbrotCu.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
+				mandelbrotCu.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
+				mandelbrotCu.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
+				mandelbrotCu.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
+				MandelbrotPoints = mandelbrotCu.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );	
+			}
+		}
+		else 
+		{
+			JuliaStepsX = JuliaStepsX > 1200 ? JuliaStepsX : JuliaStepsX * 1.1;
+			JuliaStepsY = JuliaStepsY > 1200 ? JuliaStepsY : JuliaStepsY * 1.1;
+			if ( !GPU )
+			{	
+				julia.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
+				julia.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
+				julia.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
+				julia.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+			}
+			else 
+			{
+				juliaCu.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
+				juliaCu.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
+				juliaCu.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
+				juliaCu.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
+				JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+			}
+		}
+	}
+	else 
+	{
+		if ( !IsJulia )
+		{
+			MandelbrotStepsX = MandelbrotStepsX < 500 
+							   ? MandelbrotStepsX 
+							   : MandelbrotStepsX/1.1;
+			MandelbrotStepsX = GPU ? 1200 : MandelbrotStepsX;
+			MandelbrotStepsY = MandelbrotStepsY < 500 
+							   ? MandelbrotStepsY 
+							   : MandelbrotStepsY/1.1;
+			MandelbrotStepsY = GPU ? 1200 : MandelbrotStepsY;
+			if( !GPU )
+			{
+				mandelbrot.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
+				mandelbrot.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
+				mandelbrot.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
+				mandelbrot.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
+				MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+			}
+			else 
+			{
+				mandelbrotCu.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
+				mandelbrotCu.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
+				mandelbrotCu.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
+				mandelbrotCu.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
+				MandelbrotPoints = mandelbrotCu.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
+			}
+		}
+		else 
+		{
+			JuliaStepsX = JuliaStepsX < 500 ? JuliaStepsX : JuliaStepsX / 1.1;
+			JuliaStepsX = GPU ? 1200 : JuliaStepsX;
+			JuliaStepsY = JuliaStepsY < 500 ? JuliaStepsY : JuliaStepsY / 1.1;
+			JuliaStepsY = GPU ? 1200 : JuliaStepsY;
+			if( !GPU )
+			{
+				julia.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
+				julia.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
+				julia.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
+				julia.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
+				JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+			}
+			else 
+			{
+				juliaCu.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
+				juliaCu.SetComplexXMin( mm.xmin - ( xlength*.1 ) );
+				juliaCu.SetComplexYMax( mm.ymax + ( ylength*.1 ) );
+				juliaCu.SetComplexYMin( mm.ymin - ( ylength*.1 ) );
+				JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
+			}
+		}
+	}
 }
