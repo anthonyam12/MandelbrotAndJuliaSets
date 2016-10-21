@@ -550,7 +550,8 @@ void update( int value )
 		// make a copy of the current scheme so we can use the colors after 
 		// they change
 		ColorScheme constScheme = CurrentScheme;
-		for( int i = 0; i < 11; i++ )
+		CurrentScheme.SetColor( 1, constScheme.GetColor(10) );
+		for( int i = 2; i < 11; i++ )
 		{
 			// change the colors to the 'next' color
 			CurrentScheme.SetColor( i, constScheme.GetColor( ( i + 10 ) % 11 ) );
