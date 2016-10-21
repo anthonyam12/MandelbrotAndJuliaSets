@@ -152,7 +152,7 @@ vector< ComplexPoint > Julia_cu::GetPoints( ComplexPoint seed, int nx, int ny,  
 	cudaMemcpy( d_scheme, scheme, size_nynx, cudaMemcpyHostToDevice );
 
 	// set number of blocks and threads on GPU
-	int nThreads = 64;
+	int nThreads = 256;
 	int nBlocks = ( nx + nThreads - 1 ) / nThreads;
 
 	// calculate points on the GPU
