@@ -1,0 +1,70 @@
+One thing to keep in mind when building with make is the location of CUDA
+libraries. If you have linking problems, open makefile with preferred editor,
+on line 51 look for -L/usr/local/cuda/lib when I built I had issues with my
+CUDA library being under /usr/local/cuda/lib64 on the lab computer and have
+modified to build on the lab computer.
+
+
+______________________________RUNTIMES RESULTS_________________________________
+No significant runtime for changing colors, on Graphics Card or on CPU
+No significant runtime for random color generation and display, on Graphics 
+Card or on CPU
+
+Julia Set generation is 2.1429 to 5.8 times faster on the GPU than it is on the
+CPU
+
+Zoom on GPU could take about 2x as long comparing max zoom time on GPU to min
+zoom time on CPU, but this isn't quite right, since the zoom is dependent on 
+the location of the Mandelbrot set we are zooming in on, how far out we are etc
+In the interest of straight comparison the CPU ran 1.9615 faster than the GPU
+(min to max) and the GPU run up to 52.8 times faster while zooming in.
+Again, there is the fear it's not a straight comparison and may not be entirely
+representative of the speed up.
+
+___________________________________RUNTIMES_____________________________________
+
+				   __ZOOM__
+ ______________GPU______________             _______________CPU_________________
+|100				|	    |300				|
+|140				|	    |490				|
+|150				|	    |820				|
+|190				|	    |1240				|
+|200				|	    |1620				|
+|220				|	    |2100				|
+|240				|	    |2690				|
+|340				|	    |3490				|
+|460				|	    |4350				|
+|500				|	    |5270				|
+|500				|	    |5250				|
+|510				|	    |5250				|
+|480				|	    |5280				|
+|400				|	    |5280				|
+|340				|	    |5270				|
+|360				|	    |5270				|
+|360				|	    |5270				|
+|380				|	    |5280				|
+|390				|	    |260				|
+|410				|	    |480				|
+|420				|	    |890				|
+|450				|	    |1230				|
+|350				|	    |1630				|
+|360				|	    |2100				|
+|370				|	    |2680				|
+|400				|	    |3500				|
+|310				|	    |1740				|
+|360				|	    |1470				|
+|400				|	    |1080				|
+|_______________________________|	    |___________________________________|
+
+				    __JULIA__
+ ______________GPU______________               _______________CPU_______________
+|70				|	      |150				|
+|70				|	      |180				|
+|70				|	      |290				|
+|50				|	      |230				|
+|60				|	      |160				|
+|60				|	      |290				|
+|60				|	      |270				|
+|60				|	      |290				|
+|_______________________________|	      |_________________________________|
+
