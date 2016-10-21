@@ -2,6 +2,7 @@
 
 Mandelbrot_cu::Mandelbrot_cu()
 {
+		// set xmin, xmax, ymin, ymax to default values.
 		this->ComplexXMin = -2.00;
 		this->ComplexXMax = 1;
 		this->ComplexYMin = -1.5;
@@ -10,13 +11,16 @@ Mandelbrot_cu::Mandelbrot_cu()
 
 __global__ void CalcPoint( float *x, float *y, int *scheme, int nx, int ny, int maxIter ) 
 {
+	// get index into x array
 	int index = threadIdx.x + blockIdx.x * blockDim.x;
 	if ( index < nx ) 
 	{
 		int start = index*ny;
 		int end = start + ny;
+		// iterate the column values corresponding to this row
 		for( int i = start; i < end; i++ )
 		{
+			// x0 and y0 to be added onto points
 			double zx0 = x[index];
 			double zy0 = y[i];
 
@@ -25,6 +29,7 @@ __global__ void CalcPoint( float *x, float *y, int *scheme, int nx, int ny, int 
 
 			int count = 0;
 			
+			// determine convergence/divergence
 			while( ( zx*zx + zy*zy <= 4.0 ) && ( count < maxIter ) )
 			{
 				// complex square
@@ -94,6 +99,7 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter )
 {
 	vector< ComplexPoint > points;
 
+	// determine array size and allocate memory
 	int size_nx = nx * sizeof( float );
 	int size_nynx = ( nx*ny ) * sizeof( float );
 	int size_sch = ( nx*ny ) * sizeof( int );	
@@ -108,6 +114,7 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter )
 
 	ComplexPoint z, zIncr;
 
+	// calculates x and y increments
 	zIncr.x = ComplexWidth / float( nx );
 	zIncr.y = ComplexHeight / float( ny );
 
@@ -126,26 +133,33 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter )
 	}
 
 	// Do host side CUDA prep and run kernel on CUDA device
+	// create device vectors
 	float *d_x, *d_y;
 	int *d_scheme;
 
+	// allocate memory on the device for our arrays
 	cudaMalloc( ( void** )&d_x, size_nx );
 	cudaMalloc( ( void** )&d_y, size_nynx );
 	cudaMalloc( ( void** )&d_scheme, size_sch );
 
+	// copy memory from host to the device
 	cudaMemcpy( d_x, x, size_nx, cudaMemcpyHostToDevice );
 	cudaMemcpy( d_y, y, size_nynx, cudaMemcpyHostToDevice );
 	cudaMemcpy( d_scheme, scheme, size_sch,  cudaMemcpyHostToDevice );
 
+	// set number of threads and calculates blocks
 	int nThreads = 64;
 	int nBlocks = ( nx + nThreads - 1 ) / nThreads;
 
+	// calculate scheme indexes on the GPU
 	CalcPoint<<< nBlocks, nThreads >>>( d_x, d_y, d_scheme, nx, ny, maxIter );
 
+	// copy arrays back to host from GPU
 	cudaMemcpy( x, d_x, size_nx, cudaMemcpyDeviceToHost );
 	cudaMemcpy( y, d_y, size_nynx, cudaMemcpyDeviceToHost );
 	cudaMemcpy( scheme, d_scheme, size_sch, cudaMemcpyDeviceToHost );
 
+	// create points from the x, y and scheme values and push onto vector
 	for( int i = 0; i < nx; i++ )
 	{
 		z.x = x[i];
@@ -158,11 +172,13 @@ vector< ComplexPoint > Mandelbrot_cu::GetPoints( int nx, int ny, int maxIter )
 		}
 	}
 	
+	// free memory
 	free(x); free(y); free(scheme);
 	cudaFree(d_x); cudaFree(d_y); cudaFree(d_scheme);
 	return points;
 }
 
+// Getters and setters for xmin, xmax, ymin, and ymax
 double Mandelbrot_cu::GetComplexXMin()
 {
 	return this->ComplexXMin;

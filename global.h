@@ -4,6 +4,7 @@
 
 using namespace std;
 
+// Color class to store color values and supply an equal function
 class Color
 {
 	public:
@@ -15,6 +16,8 @@ class Color
 		float b;
 };
 
+// stores the 11 colors of a color scheme, has getter and setter
+// functionality, and supplies and equal method
 class ColorScheme 
 {
 	public:
@@ -39,7 +42,8 @@ class ColorScheme
 		Color color10;
 };
 
-
+// x and y of the complex point x + iy
+// schemeIndex - index into the color scheme (determines color of the point)
 struct ComplexPoint 
 {
 	double x;
@@ -47,6 +51,7 @@ struct ComplexPoint
 	int schemeIndex;
 };
 
+// CPU julia class to get the Julia points and set color scheme idnex of the points
 class Julia 
 {
 	public:
@@ -73,6 +78,7 @@ class Julia
 		double ComplexHeight;
 };
 
+// GPU Julia class to get the colors of the Julia set points
 class Julia_cu
 {
 	public:
@@ -96,6 +102,7 @@ class Julia_cu
 		double ComplexHeight;
 };
 
+// CPU Mandelbrot to get the colors of the points
 class Mandelbrot
 {
 	public:
@@ -122,6 +129,7 @@ class Mandelbrot
 		double ComplexHeight;
 };
 
+// GPU Mandelbrot to set the colors of the mandelbrot points
 class Mandelbrot_cu
 {	
 	public:

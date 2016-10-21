@@ -3,6 +3,7 @@
 
 Mandelbrot::Mandelbrot()
 {
+	// set xmin, ymin, xmax, ymax to default values
 	this->ComplexXMin = -2;
 	this->ComplexXMax = 1;
 	this->ComplexYMin = -1.5;
@@ -16,17 +17,23 @@ vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter )
 	ComplexPoint z, zIncr;
 	int count = 0;
 
+	// determine width and height of orthographic view
 	ComplexWidth = ComplexXMax - ComplexXMin;
 	ComplexHeight = ComplexYMax - ComplexYMin;
 
+	// get y and y increments
 	zIncr.x = ComplexWidth / double( nx );
 	zIncr.y = ComplexHeight / double( ny );
 
+	// for each row 
 	for( z.x = ComplexXMin; z.x < ComplexXMax; z.x += zIncr.x )
 	{
+		// for each column
 		for( z.y = ComplexYMin; z.y < ComplexYMax; z.y += zIncr.y ) 
 		{
+			// determine convergence/divergence
 			count = MandelbrotSqTransf( z, maxIter );
+			// set color scheme index
 			if( count >= maxIter )
 			{
 				z.schemeIndex = 0;
@@ -74,12 +81,14 @@ vector< ComplexPoint > Mandelbrot::GetPoints( int nx, int ny,  int maxIter )
 			points.push_back(z);
 		}
 	}
-
+	
+	// return vector of points
 	return points;
 }
 
 ComplexPoint Mandelbrot::ComplexSquare( ComplexPoint z )
 {
+	// performs z^2 on the passed point
 	ComplexPoint square;
 
 	square.x = z.x * z.x - z.y * z.y;
@@ -93,6 +102,8 @@ int Mandelbrot::MandelbrotSqTransf( ComplexPoint z0, int maxIter )
 	ComplexPoint z = z0;
 	int count = 0;
 
+	// iterates until we converge or diverge based on our maximum 
+	// number of allowed interations
 	while ( ( z.x * z.x + z.y * z.y <= 4.0 ) && ( count < maxIter ) )
 	{
 		z = ComplexSquare( z );
@@ -103,7 +114,7 @@ int Mandelbrot::MandelbrotSqTransf( ComplexPoint z0, int maxIter )
 	return count;
 }
 
-
+// xmin, xmax, ymin, and ymax getters and setters
 double Mandelbrot::GetComplexXMin()
 {
 	return this->ComplexXMin;
@@ -123,7 +134,6 @@ double Mandelbrot::GetComplexYMax()
 {
 	return this->ComplexYMax;
 }
-
 
 void Mandelbrot::SetComplexXMin( double xmin )
 {

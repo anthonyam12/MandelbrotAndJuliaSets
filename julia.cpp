@@ -2,6 +2,8 @@
 
 Julia::Julia( ) 
 {
+	// initialize the x and y mins and maxs since the Julia
+	// points lie in this range
 	this->ComplexXMin = -2.0;
 	this->ComplexXMax = 2.0;
 	this->ComplexYMin = -2.00;
@@ -17,14 +19,19 @@ vector< ComplexPoint > Julia::GetPoints( ComplexPoint seed, int nx, int ny, int 
 	this->ComplexHeight = ComplexXMax - ComplexXMin;
 	this->ComplexWidth = ComplexYMax - ComplexYMin;
 
+	// get the increment in x and y based on number of steps
 	zIncr.x = ComplexWidth / float( nx );
 	zIncr.y = ComplexHeight / float( ny );
 
+	// step through each row
 	for( z.x = ComplexXMin; z.x < ComplexXMax; z.x += zIncr.x )
 	{
+		// step through each column
 		for( z.y = ComplexYMin; z.y < ComplexYMax; z.y += zIncr.y ) 
 		{
+			// get count to determine if point converges or diverges
 			count = JuliaSqTransf( z, seed, maxIter );
+			// set color based on count returned
 			if( count >= maxIter )
 			{
 				z.schemeIndex = 0;
@@ -73,9 +80,11 @@ vector< ComplexPoint > Julia::GetPoints( ComplexPoint seed, int nx, int ny, int 
 		}
 	}
 
+	// return vector of complex points
 	return points;
 }
 
+// squares the complex number z
 ComplexPoint Julia::ComplexSquare( ComplexPoint z )
 {
 	ComplexPoint square;
@@ -86,6 +95,8 @@ ComplexPoint Julia::ComplexSquare( ComplexPoint z )
 	return square;
 }
 
+// iterates and increments a counter. The count returned will determine the 
+// color of the julia point
 int Julia::JuliaSqTransf( ComplexPoint z0, ComplexPoint seed, int maxIter ) 
 {
 	ComplexPoint z = z0;
@@ -101,42 +112,49 @@ int Julia::JuliaSqTransf( ComplexPoint z0, ComplexPoint seed, int maxIter )
 	return count;
 }
 
+// return xmin
 double Julia::GetComplexXMin()
 {
 	return ComplexXMin;
 }
 
+// return xmax
 double Julia::GetComplexXMax() 
 {
 	return ComplexXMax;
 }
 
+// return ymin
 double Julia::GetComplexYMin()
 {
 	return ComplexYMin;
 }
 
+// return ymax
 double Julia::GetComplexYMax() 
 {
 	return ComplexYMax;
 }
 
+// set xmin
 void Julia::SetComplexXMin( double xmin )
 {
 	this->ComplexXMin = xmin;
 }
 
-
+// set xmax
 void Julia::SetComplexXMax( double xmax )
 {
 	this->ComplexXMax = xmax;
 }
 
+// set ymin
 void Julia::SetComplexYMin( double ymin )
 {
 	this->ComplexYMin = ymin;
 }
 
+// set ymax
 void Julia::SetComplexYMax( double ymax )
 {
 	this->ComplexYMax = ymax;

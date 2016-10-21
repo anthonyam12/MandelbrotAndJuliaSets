@@ -5,9 +5,44 @@
 * CSC - 533 Computer Graphics, Dr. John Weiss
 * Program 2 - Mandelbrot and Julia Set Explorer
 *
-* Description:
+* Usage:
+* 	mandelbrot 
+* 	OR
+* 	mandelbrot -cpu
 *
-* Core Features:
+* Description:
+* 	This program is an explorer for Mandlebrot and Julia sets. The explorer
+* allows zooming in and out on the Julia or Mandelbrot sets, changing the
+* colors of the sets, generating a new color scheme for the set, and 
+* animation of the fractals by cycling the color schemes. Additionally the 
+* computation of the Mandelbrot and Julia sets is handled both on the GPU and on
+* the CPU depending on a command line flag. If the '-cpu' is passed as a command
+* line argument the computation of the set's points are run on the CPU, otherwise
+* the computation is done by a GPU with CUDA cores. 
+*
+* 	The program incorporates a few classes to allow better abstraction and less
+* code reuse. Those being, 
+* 	1. Mandelbrot_points.cpp - a class used moslty for getting Mandlebrot set points
+* 						on the GPU
+*  	2. Mandelbrot_cuda.cu - same as Mandelbrot.cpp except the computations are
+*  						performed on the GPU
+*  	3. Julia.cpp - Julia set computations on the CPU
+*  	4. Julia_cuda.cpp - Julia set computations on the GPU
+*  	5. colorscheme.cpp - stores 11 colors and some functionality to operate on 
+*  						the colors
+*  	6. color.cpp - stores the R, G, B values of a color and operations on these
+* 
+* 	Contol of the program is as follows, 
+* 		Panning - left, right, up and down arrow keys are used to pan left, 
+* 					right, up, and down
+* 		Zooming - zooming can be accomplished with the + and - keys or the mouse
+* 					scroll wheel
+* 		Animating - pressing the 'a' key will animate the colors
+* 		Changing Colors - pressing 'c' will change the color scheme
+* 		Julia Set Toggle - 'j' will toggle between Julia and Mandelbrot sets
+*		Random Color - 'r' will generate a randome color scheme and store it in 
+*					a vector. When changing colors the color is selected from 
+*					this color scheme vector.
 *
 * Known Bugs:
 *	- Sort of a bug: zoom in and out don't zoom the same amount. Would need to
@@ -44,6 +79,7 @@ int main( int argc, char* argv[] )
 		string input = argv[1];
 		if ( input == "-cpu" )
 		{
+			// run on CPU rather than GPU
 			GPU = !GPU;
 		}
 	}
@@ -53,7 +89,7 @@ int main( int argc, char* argv[] )
 	// set the default color scheme
 	CurrentScheme = ColorSchemes.at(0);
 
-	// get Mandelbrot points
+	// get Mandelbrot points from CPU class or GPU class depending on flag
 	if ( !GPU )
 	{
 		MandelbrotPoints = mandelbrot.GetPoints( 1000, 1000, 1000 );
@@ -164,10 +200,22 @@ void reshape( int w, int h )
 
 /*******************************************************************************
 * Authors: Anthony Morast, Samuel Carroll
-* \brief 
+* \brief OpenGL callback to handle keyboard input 
 *
-* \params
-* \return
+* We only care about a few key presses, 
+* 	J - toggles between Julia and Mandelbrot sets
+* 	+/- - used for zooming in and out, respectively
+* 	C - changes the color map
+* 	R - generates a random color map and stores it
+* 	A - animates the color map by cycling the colors
+*	ESC - exits the program
+* The method will determine which key was pressed and perform the operations 
+* necessary. 
+*
+* \params key - key pressed
+* 		  x - x position of mouse when key pressed
+* 		  y - y position of mouse when key pressed
+* \return none
 *******************************************************************************/
 void keyboard( unsigned char key, int x, int y )
 {
@@ -176,21 +224,25 @@ void keyboard( unsigned char key, int x, int y )
 	// 	   (open new window for Julia)
 	// C - change color maps
 	// R - generate random color map
-	// A - animate by cycling between color maps
+	// A - animate by cycling colors in a color scheme
 	switch ( key ) 
 	{
 		case Plus:
+			// zoom in
 			zoom( true );
 			break;
 		case Minus:
+			// zoom out
 			zoom( false );
 			break;
 		case J:
 			// Calc/Open Julia Set
+			// reset Julia x/y min/max
 			julia.SetComplexXMax( 2 );
 			julia.SetComplexXMin( -2 );
 			julia.SetComplexYMax( 2 );
 			julia.SetComplexYMin( -2 );
+			// get julia points
 			if ( !IsJulia )
 			{
 				if ( !GPU )
@@ -202,30 +254,43 @@ void keyboard( unsigned char key, int x, int y )
 					JuliaPoints = juliaCu.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
 				}
 			}
+			// reset number of steps
 			JuliaStepsX = 500;
 			JuliaStepsY = 500;
+			// set a flag so the rest of the program acts accordingly
 			IsJulia = !IsJulia;
 			break;
 		case C:
+			// call a method to change the color scheme
 			ChangeColor();
+			// If we're animating and stop we want to go to the new
+			// changed scheme rather than the scheme we were using
+			// when we started animating.
 			BeforeAnimating = CurrentScheme;
 			break;
 		case R:
+			// generates a new color scheme and stores it on our vector
+			// of schemes
 			GenerateRandomColorScheme();
+			// if we are animating and stop set scheme to new scheme
 			BeforeAnimating = CurrentScheme;
 			break;
 		case A:
+			// set animating flag for program to act accordingly
 			Animating = !Animating;
 			if ( !Animating )
 			{
+				// when we stop animating reset to the original color scheme
 				CurrentScheme = BeforeAnimating;
 			}
 			else 
 			{
+				// set the scheme we want to revert back to when done animating
 				BeforeAnimating = CurrentScheme;
 			}
 			break;
 		case EscapeKey:
+			// exit the program
 			exit( 0 );
 			break;
 	}	
@@ -234,25 +299,41 @@ void keyboard( unsigned char key, int x, int y )
 
 /*******************************************************************************
 * Authors: Anthony Morast, Samuel Carroll
-* \brief 
+* \brief OpenGL callback to handle the use of the arrow keys
 *
-* \params
-* \return
+* In this program we choose to use the arrow keys to pan left, right, up, and
+* down in the set. This callback will determine which key was pressed and will
+* change the position of our set's midpoint accordingly. That is, if we pan up
+* the midpoint is shifted up by a set amount by adding to the ymax and subtracting
+* from the ymin. To pan right we add to xmax and subtract from xmin. Similar 
+* operations are performed for left and down panning. 
+*
+* \params key - ID of key pressed
+* 		  x - x position of activity
+* 		  y - y position of activity
+* \return none
 *******************************************************************************/
 void special( int key, int x, int y )
 {
+	// get the xmin, xmax, ymin, and ymax
 	MinMax mm = GetMinMax();
 	
+	// will be working with the length of the x, y lines since our orthographic
+	// midpoint is not at 0,0 in the viewport 
 	double xlength = mm.xmax - mm.xmin;
 	double ylength = mm.ymax - mm.ymin;
 
 	switch( key )
 	{
+		// pan right
 		case GLUT_KEY_RIGHT:
 			if ( !IsJulia )
 			{
+				// handle Mandelbrot on GPU or CPU
 				if ( !GPU )
 				{
+					// decrease xmin by adding 30% of the line length and increase
+					// xmax by doing the same, the recalculate
 					mandelbrot.SetComplexXMin( mm.xmin + ( xlength*.3 ) );
 					mandelbrot.SetComplexXMax( mm.xmax + ( xlength*.3 ) );			
 					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
@@ -266,8 +347,10 @@ void special( int key, int x, int y )
 			}
 			else 
 			{	
+				// Handle Julia CPU and GPU
 				if( !GPU ) 
 				{
+					// same as above add 30% to the min/max and redraw
 					julia.SetComplexXMin( mm.xmin + ( xlength*.3 ) );
 					julia.SetComplexXMax( mm.xmax + ( xlength*.3 ) );			
 					JuliaPoints = julia.GetPoints( JuliaSeed, JuliaStepsX, JuliaStepsY, 1000 );
@@ -285,6 +368,7 @@ void special( int key, int x, int y )
 			{
 				if ( !GPU )
 				{
+					// like above except we subtract from min and max to move left
 					mandelbrot.SetComplexXMin( mm.xmin - ( xlength*.3 ) );
 					mandelbrot.SetComplexXMax( mm.xmax - ( xlength*.3 ) );
 					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
@@ -317,6 +401,7 @@ void special( int key, int x, int y )
 			{
 				if ( !GPU )
 				{
+					// similar to panning right and left except we modify the y values
 					mandelbrot.SetComplexYMin( mm.ymin + ( ylength*.3 ) );
 					mandelbrot.SetComplexYMax( mm.ymax + ( ylength*.3 ) );
 					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
@@ -349,6 +434,7 @@ void special( int key, int x, int y )
 			{
 				if ( !GPU )
 				{
+					// decrease y values to pan down.
 					mandelbrot.SetComplexYMin( mm.ymin - ( ylength*.3 ) );
 					mandelbrot.SetComplexYMax( mm.ymax - ( ylength*.3 ) );
 					MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );
@@ -383,17 +469,24 @@ void special( int key, int x, int y )
 
 /*******************************************************************************
 * Authors: Anthony Morast, Samuel Carroll
-* \brief 
+* \brief Zoom in and out with the mouse wheel
 *
-* \params
-* \return
+* Tracks movement of the mouse wheel to zoom in and out. 
+*
+* \params button - mouse button 'pressed'
+* 		  state - pressed/released
+* 		  x - x position of activity
+* 		  y - y position of activity
+* \return none
 *******************************************************************************/
 void mouseclick( int button, int state, int x, int y )
 {
+	// button 3 - mouse wheel up (zoom in)
 	if( button == 3 )
 	{
 		zoom( true );	
 	}
+	// button 4 = mouse wheel down (zoom out)
 	if( button == 4 )
 	{
 		zoom( false );
@@ -403,10 +496,16 @@ void mouseclick( int button, int state, int x, int y )
 
 /*******************************************************************************
 * Authors: Anthony Morast, Samuel Carroll
-* \brief 
+* \brief Tracks the position of the mouse to set the seed for our Julia set
 *
-* \params
-* \return
+* Tracks the x,y position of the mouse which is used as a seed for the Julia set.
+* Inverts y since down should mean down. Converts our points from the screen coords
+* given by our viewport to the coords given by our orthographic projection.
+* Sets the JuliaSeed x and y values to wherever the mouse is.
+*
+* \params int x - x position of the mouse in viewport coords
+* 		  int y - y position of the mouse in viewport coords
+* \return none
 *******************************************************************************/
 void mousemove( int x, int y )
 {
@@ -417,12 +516,14 @@ void mousemove( int x, int y )
 	if ( !IsJulia ) 
 	{
 		// track the mouse position to open Julia Set
+		// converts the viewport coords to our orthographic coords
 		double gridStepsX = ( ( fabs(mm.xmax) + fabs(mm.xmin) ) / ScreenWidth );
 		double plotx = mm.xmin + ( x * gridStepsX );
 
 		double gridStepsY = ( ( fabs(mm.ymax) + fabs(mm.ymin) ) / ScreenHeight );
 		double ploty = mm.ymin + ( y * gridStepsY );
 
+		// set the Julia Seeds x and y values 
 		JuliaSeed.x = plotx;
 		JuliaSeed.y = ploty;
 	}
@@ -625,6 +726,7 @@ MinMax GetMinMax()
 	// determine which class to get the points from and call the proper getters
 	if( !IsJulia )
 	{
+		// calls getters from CPU Mandelbrot
 		if ( !GPU ) 
 		{
 			mm.xmin = mandelbrot.GetComplexXMin();
@@ -634,6 +736,7 @@ MinMax GetMinMax()
 		}
 		else 
 		{
+			// calls getters from Mandelbrot GPU
 			mm.xmin = mandelbrotCu.GetComplexXMin();
 			mm.xmax = mandelbrotCu.GetComplexXMax();
 			mm.ymin = mandelbrotCu.GetComplexYMin();
@@ -644,6 +747,7 @@ MinMax GetMinMax()
 	{
 		if ( !GPU )
 		{
+			// gets mins and maxs from julia CPU
 			mm.xmin = julia.GetComplexXMin();
 			mm.xmax = julia.GetComplexXMax();
 			mm.ymin = julia.GetComplexYMin();
@@ -651,6 +755,7 @@ MinMax GetMinMax()
 		}
 		else
 		{
+			// gets mins amd maxs from Julia GPU
 			mm.xmin = juliaCu.GetComplexXMin();
 			mm.xmax = juliaCu.GetComplexXMax();
 			mm.ymin = juliaCu.GetComplexYMin();
@@ -663,14 +768,22 @@ MinMax GetMinMax()
 
 /*******************************************************************************
 * Authors: Anthony Morast, Samuel Carroll
-* \brief 
+* \brief Handles zooming in and out on the Mandelbrot/Julia sets
 *
-* \params
-* \return
+* This method starts by getting the min amd mac values for whichever class we 
+* are dealing with (Mandelbrot CPU, Mandelbrot GPU, Julia CPU, or Julia GPU).
+* It then, essentially, reduces or increases the X and Y min and maxes of the 
+* current class and recalculates the points in our set. 
+*
+* \params zoomIn - bool to determine if we are zooming in or out
+* \return none
 *******************************************************************************/
 void zoom( bool zoomIn )
 {
+	// x and y min and max
 	MinMax mm = GetMinMax();
+	// gets the x and y line length (keeps scale and midpoint by reducing by a 
+	// factor of the total length of our x and y lines)
 	double xlength = mm.xmax - mm.xmin;
 	double ylength = mm.ymax - mm.ymin;
 
@@ -678,18 +791,23 @@ void zoom( bool zoomIn )
 	{
 		if ( !IsJulia )
 		{
+			// increase the number of steps as we zoom in
 			MandelbrotStepsX = MandelbrotStepsX > 1200 ? MandelbrotStepsX : MandelbrotStepsX*1.1;
 			MandelbrotStepsY = MandelbrotStepsY > 1200 ? MandelbrotStepsY : MandelbrotStepsY*1.1;
+			// run CPU calcs
 			if ( !GPU )
 			{
+				// reduce x and y mins and maxs to give us a 'zoomed in' set of points
 				mandelbrot.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
 				mandelbrot.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
 				mandelbrot.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
 				mandelbrot.SetComplexYMin( mm.ymin + ( ylength*.1 ) );
+				// re-calculate points
 				MandelbrotPoints = mandelbrot.GetPoints( MandelbrotStepsX, MandelbrotStepsY, 1000 );	
 			}
 			else 
 			{
+				// same as above except on the GPU
 				mandelbrotCu.SetComplexXMax( mm.xmax - ( xlength*.1 ) );
 				mandelbrotCu.SetComplexXMin( mm.xmin + ( xlength*.1 ) );
 				mandelbrotCu.SetComplexYMax( mm.ymax - ( ylength*.1 ) );
@@ -699,6 +817,7 @@ void zoom( bool zoomIn )
 		}
 		else 
 		{
+			// Same as above except with our Julia points on the CPU or GPU
 			JuliaStepsX = JuliaStepsX > 1200 ? JuliaStepsX : JuliaStepsX * 1.1;
 			JuliaStepsY = JuliaStepsY > 1200 ? JuliaStepsY : JuliaStepsY * 1.1;
 			if ( !GPU )
@@ -721,16 +840,20 @@ void zoom( bool zoomIn )
 	}
 	else 
 	{
+		// zoom out
 		if ( !IsJulia )
 		{
+			// if we're on the CPU we want to reduce the number of x, y steps for less computation
 			MandelbrotStepsX = MandelbrotStepsX < 500 
 							   ? MandelbrotStepsX 
 							   : MandelbrotStepsX/1.1;
+			// on GPU we don't really care so we keep it relatively high
 			MandelbrotStepsX = GPU ? 1200 : MandelbrotStepsX;
 			MandelbrotStepsY = MandelbrotStepsY < 500 
 							   ? MandelbrotStepsY 
 							   : MandelbrotStepsY/1.1;
 			MandelbrotStepsY = GPU ? 1200 : MandelbrotStepsY;
+			// increase the length of the x/y axis lenghts to give us more points (zoom out) 
 			if( !GPU )
 			{
 				mandelbrot.SetComplexXMax( mm.xmax + ( xlength*.1 ) );
@@ -750,6 +873,7 @@ void zoom( bool zoomIn )
 		}
 		else 
 		{
+			// same as above except on our Julia sets
 			JuliaStepsX = JuliaStepsX < 500 ? JuliaStepsX : JuliaStepsX / 1.1;
 			JuliaStepsX = GPU ? 1200 : JuliaStepsX;
 			JuliaStepsY = JuliaStepsY < 500 ? JuliaStepsY : JuliaStepsY / 1.1;

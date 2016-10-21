@@ -10,6 +10,7 @@ Color::Color()
 
 Color::Color( float r, float g, float b )
 {
+	// create a new color with the values supplied
 	this->r = r;
 	this->g = g;
 	this->b = b;
@@ -17,6 +18,7 @@ Color::Color( float r, float g, float b )
 
 bool Color::equals( Color color )
 {
+	// determines if this color is equal to the passed color
 	return this->r == color.r &&
 		   this->g == color.g &&
 		   this->b == color.b;

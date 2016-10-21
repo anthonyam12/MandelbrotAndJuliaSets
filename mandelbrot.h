@@ -1,16 +1,16 @@
-//#include <iostream> 
 #include <GL/freeglut.h>	// OpenGL utilities, window manager
 #include <math.h>			// may not need - check
-#include <time.h>			// random see
+#include <time.h>			// random seed
 #include <stdlib.h>			// rand()
 #include <sstream> 			// command line args
 #include <string>			// command line input
 
-#include "global.h"
+#include "global.h"			// classes and structs for this program
 
 using namespace std;
 
 // Structs
+// stores the min and max values so operations can be performed
 struct MinMax
 {
 	double xmin;
@@ -20,7 +20,8 @@ struct MinMax
 };
 
 // Constants
-const int Plus = '+';
+// Key contants to handle keyboard input
+const int Plus = '+';		
 const int Minus = '-';
 const int J = 'j';
 const int C = 'c';
@@ -29,8 +30,8 @@ const int A = 'a';
 const int EscapeKey = 27;
 
 // Globals
-vector<ComplexPoint> MandelbrotPoints;
-vector<ComplexPoint> JuliaPoints;
+vector<ComplexPoint> MandelbrotPoints;	// Mandelbrot points to be displayed
+vector<ComplexPoint> JuliaPoints;		// Julia points to be displayed
 
 Julia julia;						// Class to get Julia points
 Julia_cu juliaCu;					// Class to get Julia points on the GPU
@@ -46,7 +47,7 @@ bool Animating = false;				// Are we animating?
 bool Reshape = false;				// Used in preventing reshaping
 bool GPU = true;
 
-int MandelbrotStepsX = 500;
+int MandelbrotStepsX = 500;			// starting number of x, y steps
 int MandelbrotStepsY = 500;
 int JuliaStepsX = 500;
 int JuliaStepsY = 500;

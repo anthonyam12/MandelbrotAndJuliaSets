@@ -3,12 +3,14 @@
 
 ColorScheme::ColorScheme()
 {
+	// do nothing if we don't get colors passed in
 }
 
 ColorScheme::ColorScheme( Color black, Color color1, Color color2, Color color3,
 					 	  Color color4, Color color5, Color color6, Color color7,
 					 	  Color color8, Color color9, Color color10)
 {
+	// set the colors to the colors passed as arguments
 	this->black = black;
 	this->color1 = color1;
 	this->color2 = color2;
@@ -24,6 +26,8 @@ ColorScheme::ColorScheme( Color black, Color color1, Color color2, Color color3,
 
 void ColorScheme::SetColor( int colorIndex, Color newColor )
 {
+	// sets the color at the specified index (0-10) to the 
+	// new color passed
 	switch( colorIndex )
 	{
 		case 0:
@@ -66,6 +70,7 @@ void ColorScheme::SetColor( int colorIndex, Color newColor )
 
 Color ColorScheme::GetColor( int colorIndex )
 {
+	// returns the color at the specified index (0-10)
 	switch( colorIndex )
 	{
 		case 0:
@@ -97,6 +102,8 @@ Color ColorScheme::GetColor( int colorIndex )
 
 bool ColorScheme::Equals( ColorScheme scheme )
 {
+	// if this color scheme is equal to the passed scheme return true
+	// otherwise return false
 	return scheme.color1.equals( color1 ) &&
 		   scheme.color2.equals( color2 ) &&
 		   scheme.color3.equals( color3 ) &&
