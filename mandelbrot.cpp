@@ -44,6 +44,16 @@
 *					a vector. When changing colors the color is selected from 
 *					this color scheme vector.
 *
+* Runtime:
+*	NOTE: All numbers recieved on Opp Lab Computers
+*	   Zoom on GPU: Average time = 0.33113275 (52 data points)
+*	   Zoom on CPU: Average time = 2.01529092 (52 data points)
+*	   GPU Speedup: 6.08605135x faster
+*	   -------------------------------------------------------
+*	   Pan on CPU:  Average time = 0.55548346 (52 data points)
+*	   Pan on CPU:  Average time = 2.80379631 (52 data points)
+*	   GPU Speedup: 5.04748838x faster
+*
 * Known Bugs:
 *	- Sort of a bug: zoom in and out don't zoom the same amount. Would need to
 *	  the math behind the operations.
