@@ -64,7 +64,7 @@ void ColorScheme::SetColor( int colorIndex, Color newColor )
 			color10 = newColor;
 			break;
 		default:
-			throw invalid_argument( "In ColorScheme#GetColor: ColorIndex must be between 0 and 10" );
+			throw invalid_argument( "In ColorScheme GetColor: ColorIndex must be between 0 and 10" );
 	}
 }
 
@@ -96,7 +96,7 @@ Color ColorScheme::GetColor( int colorIndex )
 		case 10:
 			return color10;
 		default:
-			throw invalid_argument( "In ColorScheme#GetColor: ColorIndex must be between 0 and 10" );
+			throw invalid_argument( "In ColorScheme GetColor: ColorIndex must be between 0 and 10" );
 	}
 }
 
